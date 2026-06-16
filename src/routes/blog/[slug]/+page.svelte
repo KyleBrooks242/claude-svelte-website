@@ -3,24 +3,11 @@
 
 	let { data }: { data: PageData } = $props();
 	const post = $derived(data.post);
+	const html = $derived(data.html);
 
-	function formatDate(iso: string) {
+	function formatDate(iso: string | null) {
+		if (!iso) return '';
 		return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-	}
-
-	// Very simple markdown renderer for headings, bold, code
-	function renderMarkdown(md: string): string {
-		return md
-			.replace(/^## (.+)$/gm, '<h2>$1</h2>')
-			.replace(/^### (.+)$/gm, '<h3>$1</h3>')
-			.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-			.replace(/`([^`]+)`/g, '<code>$1</code>')
-			.split(/\n{2,}/)
-			.map((block) => {
-				if (block.trim().startsWith('<h')) return block.trim();
-				return `<p>${block.trim()}</p>`;
-			})
-			.join('\n');
 	}
 </script>
 
@@ -34,7 +21,7 @@
 
 		<header style="margin-bottom:2.5rem;">
 			<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;flex-wrap:wrap;">
-				<time style="font-size:0.85rem;color:var(--text-muted);">{formatDate(post.date)}</time>
+				<time style="font-size:0.85rem;color:var(--text-muted);">{formatDate(post.publishedAt)}</time>
 				<span style="color:var(--border);">·</span>
 				<span style="font-size:0.85rem;color:var(--text-muted);">{post.readingTime} read</span>
 			</div>
@@ -50,7 +37,7 @@
 
 		<div class="prose" style="max-width:65ch;">
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-			{@html renderMarkdown(post.content)}
+			{@html html}
 		</div>
 	</div>
 </main>
@@ -63,22 +50,45 @@
 		font-size: 0.88em;
 		font-family: 'Fira Code', 'Cascadia Code', monospace;
 	}
+	:global(.prose pre) {
+		background: var(--bg-secondary);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		padding: 1rem 1.25rem;
+		overflow-x: auto;
+		margin-bottom: 1.25rem;
+	}
+	:global(.prose pre code) {
+		background: none;
+		padding: 0;
+		font-size: 0.85em;
+	}
 	:global(.prose h2) {
 		font-size: 1.35rem;
 		margin: 2rem 0 0.6rem;
-		color: var(--text);
 	}
 	:global(.prose h3) {
 		font-size: 1.1rem;
 		margin: 1.5rem 0 0.4rem;
-		color: var(--text);
+	}
+	:global(.prose ul, .prose ol) {
+		margin: 0 0 1rem 1.5rem;
+		color: var(--text-muted);
+	}
+	:global(.prose li) {
+		margin-bottom: 0.3rem;
+	}
+	:global(.prose a) {
+		color: var(--accent);
+	}
+	:global(.prose blockquote) {
+		border-left: 3px solid var(--accent);
+		padding-left: 1rem;
+		color: var(--text-muted);
+		font-style: italic;
+		margin: 1rem 0;
 	}
 	:global(.prose strong) {
 		color: var(--text);
-	}
-	:global(.prose li) {
-		margin-left: 1.5rem;
-		margin-bottom: 0.25rem;
-		color: var(--text-muted);
 	}
 </style>

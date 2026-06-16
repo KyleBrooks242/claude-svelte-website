@@ -1,41 +1,12 @@
 <script lang="ts">
-	interface Post {
-		slug: string;
-		title: string;
-		date: string;
-		summary: string;
-		tags: string[];
-		readingTime: string;
-	}
+	import { readingTime } from '$lib/types';
+	import type { PageData } from './$types';
 
-	const posts: Post[] = [
-		{
-			slug: 'why-svelte',
-			title: 'Why I switched to Svelte for personal projects',
-			date: '2026-05-20',
-			summary: 'After years of React, Svelte\'s compile-time approach and zero-runtime model finally won me over. Here\'s what changed my mind.',
-			tags: ['Svelte', 'Frontend'],
-			readingTime: '4 min',
-		},
-		{
-			slug: 'rust-cli-tools',
-			title: 'Building fast CLI tools in Rust',
-			date: '2026-04-10',
-			summary: 'Rust\'s performance characteristics make it ideal for developer tooling. A tour through the crates and patterns I keep reaching for.',
-			tags: ['Rust', 'CLI', 'DevOps'],
-			readingTime: '7 min',
-		},
-		{
-			slug: 'postgres-performance',
-			title: 'PostgreSQL performance tips I keep forgetting',
-			date: '2026-02-28',
-			summary: 'A personal reference card for EXPLAIN ANALYZE, index strategies, and the VACUUM settings that actually matter.',
-			tags: ['PostgreSQL', 'Performance'],
-			readingTime: '5 min',
-		},
-	];
+	let { data }: { data: PageData } = $props();
+	const posts = $derived(data.posts);
 
-	function formatDate(iso: string) {
+	function formatDate(iso: string | null) {
+		if (!iso) return '';
 		return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 	}
 </script>
@@ -56,9 +27,9 @@
 					<a href="/blog/{post.slug}" style="text-decoration:none;color:inherit;display:block;">
 						<article class="card" style="cursor:pointer;">
 							<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap;">
-								<time style="font-size:0.8rem;color:var(--text-muted);">{formatDate(post.date)}</time>
+								<time style="font-size:0.8rem;color:var(--text-muted);">{formatDate(post.publishedAt)}</time>
 								<span style="color:var(--border);">·</span>
-								<span style="font-size:0.8rem;color:var(--text-muted);">{post.readingTime} read</span>
+								<span style="font-size:0.8rem;color:var(--text-muted);">{readingTime(post.summary)} read</span>
 							</div>
 							<h2 style="font-size:1.1rem;margin-bottom:0.5rem;">{post.title}</h2>
 							<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:0.75rem;">{post.summary}</p>
