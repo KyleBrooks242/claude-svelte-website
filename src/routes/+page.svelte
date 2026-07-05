@@ -1,5 +1,5 @@
 <script lang="ts">
-	const skills = ['TypeScript', 'Svelte', 'Node.js', 'Rust', 'PostgreSQL', 'Docker'];
+	const skills = ['TypeScript', 'Svelte', 'Node.js', 'PostgreSQL', 'Docker'];
 </script>
 
 <svelte:head><title>Kyle Brooks</title></svelte:head>
