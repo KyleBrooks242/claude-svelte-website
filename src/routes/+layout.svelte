@@ -26,6 +26,11 @@
 
 	function closeMenu() { menuOpen = false; }
 
+	$effect(() => {
+		$page.url.pathname;
+		menuOpen = false;
+	});
+
 	const navLinks = [
 		{ href: '/', label: 'Home' },
 		{ href: '/projects', label: 'Projects' },
