@@ -34,7 +34,14 @@
 				<div class="projects-grid">
 					{#each softwareProjects as project}
 						<a href="/projects/{project.id}" style="display:block;text-decoration:none;color:inherit;">
-						<article class="card">
+						<article class="card" style="{project.coverImage ? 'overflow:hidden;' : ''}">
+							{#if project.coverImage}
+								<img
+									src={project.coverImage}
+									alt={project.title}
+									style="display:block;width:calc(100% + 3rem);margin:-1.5rem -1.5rem 1.25rem -1.5rem;height:180px;object-fit:cover;"
+								/>
+							{/if}
 							<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
 								<h3 style="font-size: 1rem;">{project.title}</h3>
 								<span
@@ -73,7 +80,14 @@
 				<div class="projects-grid">
 					{#each woodworkingProjects as project}
 						<a href="/projects/{project.id}" style="display:block;text-decoration:none;color:inherit;">
-						<article class="card">
+						<article class="card" style="{project.coverImage ? 'overflow:hidden;' : ''}">
+							{#if project.coverImage}
+								<img
+									src={project.coverImage}
+									alt={project.title}
+									style="display:block;width:calc(100% + 3rem);margin:-1.5rem -1.5rem 1.25rem -1.5rem;height:180px;object-fit:cover;"
+								/>
+							{/if}
 							<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
 								<h3 style="font-size: 1rem;">{project.title}</h3>
 								<span
