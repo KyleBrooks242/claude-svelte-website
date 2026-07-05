@@ -1,6 +1,6 @@
 import { db } from '$lib/db';
-import { projects } from '$lib/schema';
-import { eq } from 'drizzle-orm';
+import { projectImages, projects } from '$lib/schema';
+import { asc, eq, max } from 'drizzle-orm';
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -8,12 +8,19 @@ export const load: PageServerLoad = async ({ params }) => {
 	const [project] = await db.select().from(projects).where(eq(projects.id, params.id)).limit(1);
 	if (!project) throw error(404, 'Project not found');
 
+	const images = await db
+		.select()
+		.from(projectImages)
+		.where(eq(projectImages.projectId, params.id))
+		.orderBy(asc(projectImages.position));
+
 	return {
 		project: {
 			...project,
 			createdAt: project.createdAt.toISOString(),
 			updatedAt: project.updatedAt.toISOString(),
 		},
+		images,
 	};
 };
 
@@ -42,6 +49,33 @@ export const actions: Actions = {
 			.where(eq(projects.id, params.id));
 
 		redirect(303, '/admin/projects');
+	},
+
+	addImage: async ({ request, params }) => {
+		const data = await request.formData();
+		const url = (data.get('url') as string)?.trim();
+		if (!url) return fail(422, { imageError: 'URL is required' });
+
+		const [{ maxPos }] = await db
+			.select({ maxPos: max(projectImages.position) })
+			.from(projectImages)
+			.where(eq(projectImages.projectId, params.id));
+
+		await db.insert(projectImages).values({
+			projectId: params.id,
+			url,
+			position: (maxPos ?? -1) + 1,
+		});
+	},
+
+	removeImage: async ({ request, params }) => {
+		const data = await request.formData();
+		const imageId = data.get('imageId') as string;
+		if (!imageId) return fail(400, { imageError: 'Missing image id' });
+
+		await db
+			.delete(projectImages)
+			.where(eq(projectImages.id, imageId) && eq(projectImages.projectId, params.id));
 	},
 
 	delete: async ({ params }) => {

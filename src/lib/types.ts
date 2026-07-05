@@ -26,6 +26,14 @@ export interface Project {
 	updatedAt: string;
 }
 
+export interface ProjectImage {
+	id: string;
+	projectId: string;
+	url: string;
+	caption: string;
+	position: number;
+}
+
 export function readingTime(content: string): string {
 	const words = content.trim().split(/\s+/).length;
 	return `${Math.max(1, Math.ceil(words / 200))} min`;

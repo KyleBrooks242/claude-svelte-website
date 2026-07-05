@@ -5,10 +5,14 @@
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const project = $derived(data.project);
+	const images = $derived(data.images);
 	const errors = $derived((form as { errors?: Record<string, string> })?.errors ?? {});
 	const tagsStr = $derived(project.tags.join(', '));
 	let submitting = $state(false);
 	let deleting = $state(false);
+	let addingImage = $state(false);
+	let removingImageId = $state<string | null>(null);
+	let newImageUrl = $state('');
 </script>
 
 <svelte:head><title>Edit: {project.title} · Admin</title></svelte:head>
@@ -39,6 +43,58 @@
 		</form>
 
 		<hr class="divider" style="margin-top:3rem;" />
+
+		<!-- Photos -->
+		<div style="margin-bottom:2rem;">
+			<h2 style="font-size:1.1rem;font-weight:600;margin-bottom:1.25rem;">Photos</h2>
+
+			{#if images.length > 0}
+				<div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;">
+					{#each images as image}
+						<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+							<img
+								src={image.url}
+								alt=""
+								style="width:100px;height:100px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);"
+							/>
+							<form method="POST" action="?/removeImage" style="display:contents;"
+								use:enhance={() => {
+									removingImageId = image.id;
+									return async ({ update }) => { await update(); removingImageId = null; };
+								}}
+							>
+								<input type="hidden" name="imageId" value={image.id} />
+								<button type="submit" class="btn btn-outline" style="font-size:0.75rem;padding:0.2rem 0.6rem;border-color:#ef4444;color:#ef4444;" disabled={removingImageId === image.id}>
+									{removingImageId === image.id ? '…' : 'Remove'}
+								</button>
+							</form>
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.25rem;">No photos yet.</p>
+			{/if}
+
+			<form method="POST" action="?/addImage" style="display:flex;gap:0.5rem;flex-wrap:wrap;"
+				use:enhance={() => {
+					addingImage = true;
+					return async ({ update }) => { await update(); addingImage = false; newImageUrl = ''; };
+				}}
+			>
+				<input
+					name="url"
+					type="url"
+					bind:value={newImageUrl}
+					placeholder="https://res.cloudinary.com/..."
+					style="flex:1;min-width:200px;"
+				/>
+				<button type="submit" class="btn" disabled={addingImage || !newImageUrl.trim()}>
+					{addingImage ? 'Adding…' : 'Add photo'}
+				</button>
+			</form>
+		</div>
+
+		<hr class="divider" />
 
 		<form method="POST" action="?/delete"
 			onsubmit={(e) => { if (!confirm('Permanently delete this project?')) e.preventDefault(); }}

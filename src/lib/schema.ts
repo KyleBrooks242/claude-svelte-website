@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const posts = pgTable('posts', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -31,3 +31,13 @@ export const projects = pgTable('projects', {
 
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
+
+export const projectImages = pgTable('project_images', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+	url: text('url').notNull(),
+	caption: text('caption').notNull().default(''),
+	position: integer('position').notNull().default(0),
+});
+
+export type ProjectImage = typeof projectImages.$inferSelect;

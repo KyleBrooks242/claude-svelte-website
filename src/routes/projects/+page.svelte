@@ -21,7 +21,7 @@
 		<p class="section-tag">Portfolio</p>
 		<h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Projects</h1>
 		<p style="color: var(--text-muted); margin-bottom: 3.5rem;">
-			Things I've built — in code and in the shop.
+			Things I've built — in the office and in the shop.
 		</p>
 
 		<!-- Software -->
@@ -33,52 +33,7 @@
 				</div>
 				<div class="projects-grid">
 					{#each softwareProjects as project}
-						<article class="card">
-							<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
-								<h3 style="font-size: 1rem;">{project.title}</h3>
-								<span
-									class="badge"
-									style="color:{statusColor[project.status]};border-color:{statusColor[project.status]}22;background:{statusColor[project.status]}11;flex-shrink:0;"
-								>
-									{project.status}
-								</span>
-							</div>
-
-							<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">{project.description}</p>
-
-							<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.25rem;">
-								{#each project.tags as tag}
-									<span class="badge">{tag}</span>
-								{/each}
-							</div>
-
-							<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-								{#if project.github}
-									<a href={project.github} class="btn btn-outline" style="font-size:0.8rem;padding:0.4rem 0.9rem;" target="_blank" rel="noopener noreferrer">GitHub</a>
-								{/if}
-								{#if project.demo}
-									<a href={project.demo} class="btn" style="font-size:0.8rem;padding:0.4rem 0.9rem;" target="_blank" rel="noopener noreferrer">Live demo</a>
-								{/if}
-							</div>
-						</article>
-					{/each}
-				</div>
-			</section>
-		{/if}
-
-		{#if softwareProjects.length > 0 && woodworkingProjects.length > 0}
-			<hr class="divider" />
-		{/if}
-
-		<!-- Woodworking -->
-		{#if woodworkingProjects.length > 0}
-			<section>
-				<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;margin-top:2rem;">
-					<span style="font-size:1.3rem;">🪵</span>
-					<h2 style="font-size:1.25rem;">Woodworking</h2>
-				</div>
-				<div class="projects-grid">
-					{#each woodworkingProjects as project}
+						<a href="/projects/{project.id}" style="display:block;text-decoration:none;color:inherit;">
 						<article class="card">
 							<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
 								<h3 style="font-size: 1rem;">{project.title}</h3>
@@ -98,6 +53,46 @@
 								{/each}
 							</div>
 						</article>
+						</a>
+					{/each}
+				</div>
+			</section>
+		{/if}
+
+		{#if softwareProjects.length > 0 && woodworkingProjects.length > 0}
+			<hr class="divider" />
+		{/if}
+
+		<!-- Woodworking -->
+		{#if woodworkingProjects.length > 0}
+			<section>
+				<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;margin-top:2rem;">
+					<span style="font-size:1.3rem;">🪵</span>
+					<h2 style="font-size:1.25rem;">Woodworking</h2>
+				</div>
+				<div class="projects-grid">
+					{#each woodworkingProjects as project}
+						<a href="/projects/{project.id}" style="display:block;text-decoration:none;color:inherit;">
+						<article class="card">
+							<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+								<h3 style="font-size: 1rem;">{project.title}</h3>
+								<span
+									class="badge"
+									style="color:{statusColor[project.status]};border-color:{statusColor[project.status]}22;background:{statusColor[project.status]}11;flex-shrink:0;"
+								>
+									{project.status}
+								</span>
+							</div>
+
+							<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">{project.description}</p>
+
+							<div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+								{#each project.tags as tag}
+									<span class="badge">{tag}</span>
+								{/each}
+							</div>
+						</article>
+						</a>
 					{/each}
 				</div>
 			</section>
