@@ -208,6 +208,33 @@ nav {
 	color: var(--accent);
 }
 .btn-outline:hover { background: var(--accent); color: #fff; }
+.btn:disabled, .btn-outline:disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+
+/* ── Loading bar ── */
+.loading-bar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2px;
+	z-index: 9999;
+	overflow: hidden;
+	background: transparent;
+}
+.loading-bar::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -60%;
+	width: 60%;
+	height: 100%;
+	background: var(--accent);
+	animation: loading-slide 1s ease-in-out infinite;
+}
+@keyframes loading-slide {
+	0%   { left: -60%; }
+	100% { left: 110%; }
+}
 
 /* ── Form ── */
 .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
