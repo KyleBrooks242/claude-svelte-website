@@ -49,14 +49,14 @@
 						<div style="display:flex;gap:0.5rem;flex-shrink:0;flex-wrap:wrap;">
 							<a href="/admin/posts/{post.id}/edit" class="btn btn-outline" style="font-size:0.8rem;padding:0.35rem 0.8rem;">Edit</a>
 
-							<form method="POST" action="?/{post.status === 'published' ? 'unpublish' : 'publish'}">
+							<form method="POST" action="?/{post.status === 'published' ? 'unpublish' : 'publish'}" style="display:contents;">
 								<input type="hidden" name="id" value={post.id} />
 								<button type="submit" class="btn btn-outline" style="font-size:0.8rem;padding:0.35rem 0.8rem;">
-									{post.status === 'published' ? 'Unpublish' : 'Publish'}
+									{post.status === 'published' ? 'Make Draft' : 'Publish'}
 								</button>
 							</form>
 
-							<form method="POST" action="?/delete" onsubmit={(e) => { if (!confirm('Delete this post?')) e.preventDefault(); }}>
+							<form method="POST" action="?/delete" onsubmit={(e) => { if (!confirm('Delete this post?')) e.preventDefault(); }} style="display:contents;">
 								<input type="hidden" name="id" value={post.id} />
 								<button type="submit" class="btn" style="font-size:0.8rem;padding:0.35rem 0.8rem;background:#ef4444;">Delete</button>
 							</form>
