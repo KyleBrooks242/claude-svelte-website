@@ -11,10 +11,10 @@
 		<section style="padding: 3rem 0 4rem;">
 			<p class="section-tag">Hello!</p>
 			<h1 style="font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 1rem;">
-				I'm Kyle Brooks- <br>software engineer and (debatably) woodworker
+				I'm Kyle Brooks- <br>software engineer and amateur woodworker
 			</h1>
 			<p style="font-size: 1.1rem; color: var(--text-muted); max-width: 520px; margin-bottom: 2rem;">
-				I build fast, reliable software during the day and make slow, not so reliable improvements to my home in the evening
+				I build fast, reliable software by day and make slow, not so reliable improvements to my home on weekends
 			</p>
 			<div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
 				<a href="/projects" class="btn">View Projects</a>
