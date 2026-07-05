@@ -15,3 +15,19 @@ export const posts = pgTable('posts', {
 
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
+
+export const projects = pgTable('projects', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	kind: text('kind', { enum: ['software', 'woodworking'] }).notNull().default('software'),
+	title: text('title').notNull(),
+	description: text('description').notNull().default(''),
+	tags: text('tags').array().notNull().default([]),
+	github: text('github'),
+	demo: text('demo'),
+	status: text('status', { enum: ['live', 'wip', 'archived', 'complete'] }).notNull().default('wip'),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type Project = typeof projects.$inferSelect;
+export type NewProject = typeof projects.$inferInsert;

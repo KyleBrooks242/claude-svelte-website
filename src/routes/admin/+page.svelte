@@ -16,11 +16,16 @@
 
 <main class="page">
 	<div class="container">
-		<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;">
-			<div>
-				<p class="section-tag">Admin</p>
-				<h1 style="font-size:1.75rem;">Blog Posts</h1>
+		<div style="margin-bottom:2.5rem;">
+			<p class="section-tag">Admin</p>
+			<div style="display:flex;gap:0.5rem;margin-top:0.75rem;border-bottom:1px solid var(--border);padding-bottom:0;">
+				<a href="/admin" style="padding:0.4rem 1rem;font-size:0.9rem;font-weight:600;border-bottom:2px solid var(--accent);color:var(--accent);text-decoration:none;">Blog Posts</a>
+				<a href="/admin/projects" style="padding:0.4rem 1rem;font-size:0.9rem;font-weight:600;border-bottom:2px solid transparent;color:var(--text-muted);text-decoration:none;">Projects</a>
 			</div>
+		</div>
+
+		<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;">
+			<h2 style="font-size:1.25rem;">Blog Posts</h2>
 			<a href="/admin/posts/new" class="btn">+ New post</a>
 		</div>
 
