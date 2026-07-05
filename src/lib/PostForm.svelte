@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { renderMarkdown } from '$lib/markdown';
+
 	interface Props {
 		title?: string;
 		slug?: string;
@@ -28,6 +30,8 @@
 	}
 
 	let autoSlug = $state(slug === '');
+	let previewing = $state(false);
+	const previewHtml = $derived(previewing ? renderMarkdown(content) : '');
 
 	function onTitleInput() {
 		if (autoSlug) slug = slugify(title);
@@ -92,14 +96,41 @@
 	</div>
 
 	<div class="form-group">
-		<label for="content">Content <span style="color:var(--text-muted);font-weight:400;">(Markdown)</span></label>
+		<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+			<label for="content" style="margin:0;">Content <span style="color:var(--text-muted);font-weight:400;">(Markdown)</span></label>
+			<div style="display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+				<button
+					type="button"
+					onclick={() => (previewing = false)}
+					style="padding:0.25rem 0.75rem;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;background:{previewing ? 'transparent' : 'var(--accent)'};color:{previewing ? 'var(--text-muted)' : '#fff'};transition:background 0.15s,color 0.15s;"
+				>Raw</button>
+				<button
+					type="button"
+					onclick={() => (previewing = true)}
+					style="padding:0.25rem 0.75rem;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;background:{previewing ? 'var(--accent)' : 'transparent'};color:{previewing ? '#fff' : 'var(--text-muted)'};transition:background 0.15s,color 0.15s;"
+				>Preview</button>
+			</div>
+		</div>
 		<textarea
 			id="content"
 			name="content"
 			bind:value={content}
 			placeholder="Write your post in Markdown..."
-			style="min-height:400px;font-family:'Fira Code','Cascadia Code',monospace;font-size:0.88rem;"
+			style="min-height:400px;font-family:'Fira Code','Cascadia Code',monospace;font-size:0.88rem;{previewing ? 'display:none;' : ''}"
 		></textarea>
+		{#if previewing}
+			<div
+				class="prose"
+				style="min-height:400px;padding:1.25rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-secondary);"
+			>
+				{#if content.trim()}
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+					{@html previewHtml}
+				{:else}
+					<p style="color:var(--text-muted);font-style:italic;">Nothing to preview yet.</p>
+				{/if}
+			</div>
+		{/if}
 	</div>
 
 	<div class="form-group">
