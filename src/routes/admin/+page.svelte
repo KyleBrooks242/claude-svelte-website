@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 	const posts = $derived(data.posts);
+	let pendingId = $state<string | null>(null);
 
 	function formatDate(iso: string | null) {
 		if (!iso) return '—';
@@ -49,16 +51,29 @@
 						<div style="display:flex;gap:0.5rem;flex-shrink:0;flex-wrap:wrap;">
 							<a href="/admin/posts/{post.id}/edit" class="btn btn-outline" style="font-size:0.8rem;padding:0.35rem 0.8rem;">Edit</a>
 
-							<form method="POST" action="?/{post.status === 'published' ? 'unpublish' : 'publish'}">
+							<form method="POST" action="?/{post.status === 'published' ? 'unpublish' : 'publish'}" style="display:contents;"
+								use:enhance={() => {
+									pendingId = post.id + '-status';
+									return async ({ update }) => { await update(); pendingId = null; };
+								}}
+							>
 								<input type="hidden" name="id" value={post.id} />
-								<button type="submit" class="btn btn-outline" style="font-size:0.8rem;padding:0.35rem 0.8rem;">
-									{post.status === 'published' ? 'Unpublish' : 'Publish'}
+								<button type="submit" class="btn btn-outline" style="font-size:0.8rem;padding:0.35rem 0.8rem;" disabled={pendingId === post.id + '-status'}>
+									{pendingId === post.id + '-status' ? 'Saving…' : post.status === 'published' ? 'Make Draft' : 'Publish'}
 								</button>
 							</form>
 
-							<form method="POST" action="?/delete" onsubmit={(e) => { if (!confirm('Delete this post?')) e.preventDefault(); }}>
+							<form method="POST" action="?/delete" style="display:contents;"
+								onsubmit={(e) => { if (!confirm('Delete this post?')) e.preventDefault(); }}
+								use:enhance={() => {
+									pendingId = post.id + '-delete';
+									return async ({ update }) => { await update(); pendingId = null; };
+								}}
+							>
 								<input type="hidden" name="id" value={post.id} />
-								<button type="submit" class="btn" style="font-size:0.8rem;padding:0.35rem 0.8rem;background:#ef4444;">Delete</button>
+								<button type="submit" class="btn" style="font-size:0.8rem;padding:0.35rem 0.8rem;background:#ef4444;" disabled={pendingId === post.id + '-delete'}>
+									{pendingId === post.id + '-delete' ? 'Deleting…' : 'Delete'}
+								</button>
 							</form>
 						</div>
 					</div>

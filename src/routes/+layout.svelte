@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import { page } from '$app/stores';
+	import { page, navigating } from '$app/stores';
 
 	let { children } = $props();
 
@@ -33,6 +33,10 @@
 		{ href: '/contact', label: 'Contact' },
 	];
 </script>
+
+{#if $navigating}
+	<div class="loading-bar"></div>
+{/if}
 
 <nav>
 	<div class="nav-inner">
