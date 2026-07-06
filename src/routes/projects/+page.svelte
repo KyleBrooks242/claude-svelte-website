@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import ImageWithSkeleton from '$lib/ImageWithSkeleton.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -26,7 +27,7 @@
 		<article class="card project-card">
 			<div class="project-card-image-wrap">
 				{#if project.coverImage}
-					<img src={project.coverImage} alt={project.title} class="project-card-image" />
+					<ImageWithSkeleton src={project.coverImage} alt={project.title} />
 				{:else}
 					<div class="project-card-image project-card-placeholder">
 						<span>{kindIcon[project.kind]}</span>
