@@ -13,6 +13,7 @@
 	let addingImage = $state(false);
 	let removingImageId = $state<string | null>(null);
 	let newImageUrl = $state('');
+	let newImageCaption = $state('');
 </script>
 
 <svelte:head><title>Edit: {project.title} · Admin</title></svelte:head>
@@ -51,12 +52,15 @@
 			{#if images.length > 0}
 				<div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;">
 					{#each images as image}
-						<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+						<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;width:100px;">
 							<img
 								src={image.url}
-								alt=""
+								alt={image.caption}
 								style="width:100px;height:100px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);"
 							/>
+							{#if image.caption}
+								<p style="font-size:0.75rem;color:var(--text-muted);text-align:center;word-break:break-word;">{image.caption}</p>
+							{/if}
 							<form method="POST" action="?/removeImage" style="display:contents;"
 								use:enhance={() => {
 									removingImageId = image.id;
@@ -78,7 +82,7 @@
 			<form method="POST" action="?/addImage" style="display:flex;gap:0.5rem;flex-wrap:wrap;"
 				use:enhance={() => {
 					addingImage = true;
-					return async ({ update }) => { await update(); addingImage = false; newImageUrl = ''; };
+					return async ({ update }) => { await update(); addingImage = false; newImageUrl = ''; newImageCaption = ''; };
 				}}
 			>
 				<input
@@ -87,6 +91,13 @@
 					bind:value={newImageUrl}
 					placeholder="https://res.cloudinary.com/..."
 					style="flex:1;min-width:200px;"
+				/>
+				<input
+					name="caption"
+					type="text"
+					bind:value={newImageCaption}
+					placeholder="Caption (optional)"
+					style="flex:1;min-width:160px;"
 				/>
 				<button type="submit" class="btn" disabled={addingImage || !newImageUrl.trim()}>
 					{addingImage ? 'Adding…' : 'Add photo'}
