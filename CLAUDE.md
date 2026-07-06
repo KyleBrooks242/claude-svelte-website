@@ -39,7 +39,7 @@ Key tokens: `--bg`, `--bg-secondary`, `--text`, `--text-muted`, `--accent`, `--b
 
 ### Theme
 
-Dark/light mode is driven by a `data-theme` attribute on `<html>`, set in `+layout.svelte` via `$effect` on mount (reads `localStorage`, falls back to `prefers-color-scheme`). No SSR theme flicker mitigation is in place yet.
+Dark/light mode is driven by a `data-theme` attribute on `<html>`. It's set synchronously by a blocking inline script in `app.html`'s `<head>` (reads `localStorage`, falls back to `prefers-color-scheme`) so it's applied before first paint, avoiding a flash of the wrong theme. `+layout.svelte` mirrors that attribute into a `$state` variable on mount purely to drive the toggle button's icon.
 
 ### Content
 
