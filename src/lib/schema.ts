@@ -47,6 +47,7 @@ export const messages = pgTable('messages', {
 	name: text('name').notNull(),
 	email: text('email').notNull(),
 	body: text('body').notNull(),
+	ip: text('ip').notNull(),
 	read: boolean('read').notNull().default(false),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });

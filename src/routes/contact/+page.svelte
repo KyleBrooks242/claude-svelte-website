@@ -53,17 +53,17 @@
 
 					<div class="form-group">
 						<label for="name">Name</label>
-						<input id="name" name="name" type="text" required value={form?.name ?? ''} />
+						<input id="name" name="name" type="text" required maxlength="50" value={form?.name ?? ''} />
 					</div>
 
 					<div class="form-group">
 						<label for="email">Email</label>
-						<input id="email" name="email" type="email" required value={form?.email ?? ''} />
+						<input id="email" name="email" type="email" required maxlength="50" value={form?.email ?? ''} />
 					</div>
 
 					<div class="form-group">
 						<label for="body">Message</label>
-						<textarea id="body" name="body" rows="5" required>{form?.body ?? ''}</textarea>
+						<textarea id="body" name="body" rows="5" required maxlength="500">{form?.body ?? ''}</textarea>
 					</div>
 
 					<button type="submit" class="btn" disabled={submitting}>
