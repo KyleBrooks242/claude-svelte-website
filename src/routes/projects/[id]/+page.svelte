@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import ImageWithSkeleton from '$lib/ImageWithSkeleton.svelte';
 
 	let { data }: { data: PageData } = $props();
 	const project = $derived(data.project);
@@ -58,16 +59,15 @@
 
 		{#if images.length > 0}
 			<div class="photo-grid">
-				{#each images as image}
-					<a href={image.url} target="_blank" rel="noopener noreferrer" style="display:block;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
-						<img
-							src={image.url}
-							alt={image.caption || project.title}
-							style="width:100%;height:220px;object-fit:cover;display:block;transition:transform 0.2s;"
-							onmouseenter={(e) => ((e.currentTarget as HTMLImageElement).style.transform = 'scale(1.03)')}
-							onmouseleave={(e) => ((e.currentTarget as HTMLImageElement).style.transform = 'scale(1)')}
-						/>
-					</a>
+				{#each images as image (image.id)}
+					<figure class="photo-item">
+						<a href={image.url} target="_blank" rel="noopener noreferrer" class="photo-tile">
+							<ImageWithSkeleton src={image.url} alt={image.caption || project.title} />
+						</a>
+						{#if image.caption}
+							<figcaption class="photo-caption">{image.caption}</figcaption>
+						{/if}
+					</figure>
 				{/each}
 			</div>
 		{/if}
@@ -79,6 +79,33 @@
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 1rem;
+	}
+
+	.photo-item {
+		margin: 0;
+	}
+
+	.photo-tile {
+		display: block;
+		height: 220px;
+		border-radius: var(--radius);
+		overflow: hidden;
+		border: 1px solid var(--border);
+	}
+
+	.photo-caption {
+		margin-top: 0.5rem;
+		font-size: 0.85rem;
+		color: var(--text-muted);
+		text-align: center;
+	}
+
+	.photo-tile :global(.img-skeleton-img) {
+		transition: opacity 0.3s ease, transform 0.2s ease;
+	}
+
+	.photo-tile:hover :global(.img-skeleton-img) {
+		transform: scale(1.03);
 	}
 
 	@media (max-width: 640px) {

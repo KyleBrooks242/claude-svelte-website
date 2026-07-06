@@ -22,7 +22,11 @@ export const actions: Actions = {
 
 		const tags = tagsRaw ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean) : [];
 
-		await db.insert(projects).values({ kind, title, description, tags, github, demo, status });
-		redirect(303, '/admin/projects');
+		const [inserted] = await db
+			.insert(projects)
+			.values({ kind, title, description, tags, github, demo, status })
+			.returning({ id: projects.id });
+
+		redirect(303, `/admin/projects/${inserted.id}/edit`);
 	},
 };

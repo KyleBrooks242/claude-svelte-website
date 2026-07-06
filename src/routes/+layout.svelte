@@ -4,18 +4,13 @@
 
 	let { children } = $props();
 
-	// Theme: read from localStorage, fall back to system preference
+	// Theme is set synchronously in app.html (before first paint) to avoid a flash;
+	// this just mirrors that already-applied value for the toggle button's icon.
 	let theme = $state<'light' | 'dark'>('light');
 	let menuOpen = $state(false);
 
 	$effect(() => {
-		const stored = localStorage.getItem('theme');
-		if (stored === 'dark' || stored === 'light') {
-			theme = stored;
-		} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-			theme = 'dark';
-		}
-		document.documentElement.setAttribute('data-theme', theme);
+		theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 	});
 
 	function toggleTheme() {

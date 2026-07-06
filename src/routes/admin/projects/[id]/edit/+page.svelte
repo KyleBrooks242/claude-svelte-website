@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import ProjectForm from '$lib/ProjectForm.svelte';
+	import ImageCaptionForm from '$lib/ImageCaptionForm.svelte';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -13,6 +14,7 @@
 	let addingImage = $state(false);
 	let removingImageId = $state<string | null>(null);
 	let newImageUrl = $state('');
+	let newImageCaption = $state('');
 </script>
 
 <svelte:head><title>Edit: {project.title} · Admin</title></svelte:head>
@@ -50,13 +52,14 @@
 
 			{#if images.length > 0}
 				<div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;">
-					{#each images as image}
-						<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+					{#each images as image (image.id)}
+						<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;width:100px;">
 							<img
 								src={image.url}
-								alt=""
+								alt={image.caption}
 								style="width:100px;height:100px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);"
 							/>
+							<ImageCaptionForm {image} />
 							<form method="POST" action="?/removeImage" style="display:contents;"
 								use:enhance={() => {
 									removingImageId = image.id;
@@ -78,7 +81,7 @@
 			<form method="POST" action="?/addImage" style="display:flex;gap:0.5rem;flex-wrap:wrap;"
 				use:enhance={() => {
 					addingImage = true;
-					return async ({ update }) => { await update(); addingImage = false; newImageUrl = ''; };
+					return async ({ update }) => { await update(); addingImage = false; newImageUrl = ''; newImageCaption = ''; };
 				}}
 			>
 				<input
@@ -87,6 +90,13 @@
 					bind:value={newImageUrl}
 					placeholder="https://res.cloudinary.com/..."
 					style="flex:1;min-width:200px;"
+				/>
+				<input
+					name="caption"
+					type="text"
+					bind:value={newImageCaption}
+					placeholder="Caption (optional)"
+					style="flex:1;min-width:160px;"
 				/>
 				<button type="submit" class="btn" disabled={addingImage || !newImageUrl.trim()}>
 					{addingImage ? 'Adding…' : 'Add photo'}

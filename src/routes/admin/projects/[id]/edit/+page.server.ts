@@ -1,6 +1,6 @@
 import { db } from '$lib/db';
 import { projectImages, projects } from '$lib/schema';
-import { asc, eq, max } from 'drizzle-orm';
+import { and, asc, eq, max } from 'drizzle-orm';
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -54,6 +54,7 @@ export const actions: Actions = {
 	addImage: async ({ request, params }) => {
 		const data = await request.formData();
 		const url = (data.get('url') as string)?.trim();
+		const caption = (data.get('caption') as string)?.trim() ?? '';
 		if (!url) return fail(422, { imageError: 'URL is required' });
 
 		const [{ maxPos }] = await db
@@ -64,8 +65,21 @@ export const actions: Actions = {
 		await db.insert(projectImages).values({
 			projectId: params.id,
 			url,
+			caption,
 			position: (maxPos ?? -1) + 1,
 		});
+	},
+
+	updateCaption: async ({ request, params }) => {
+		const data = await request.formData();
+		const imageId = data.get('imageId') as string;
+		const caption = (data.get('caption') as string)?.trim() ?? '';
+		if (!imageId) return fail(400, { imageError: 'Missing image id' });
+
+		await db
+			.update(projectImages)
+			.set({ caption })
+			.where(and(eq(projectImages.id, imageId), eq(projectImages.projectId, params.id)));
 	},
 
 	removeImage: async ({ request, params }) => {
@@ -75,7 +89,7 @@ export const actions: Actions = {
 
 		await db
 			.delete(projectImages)
-			.where(eq(projectImages.id, imageId) && eq(projectImages.projectId, params.id));
+			.where(and(eq(projectImages.id, imageId), eq(projectImages.projectId, params.id)));
 	},
 
 	delete: async ({ params }) => {
