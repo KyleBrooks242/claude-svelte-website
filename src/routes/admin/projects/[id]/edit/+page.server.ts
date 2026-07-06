@@ -70,6 +70,18 @@ export const actions: Actions = {
 		});
 	},
 
+	updateCaption: async ({ request, params }) => {
+		const data = await request.formData();
+		const imageId = data.get('imageId') as string;
+		const caption = (data.get('caption') as string)?.trim() ?? '';
+		if (!imageId) return fail(400, { imageError: 'Missing image id' });
+
+		await db
+			.update(projectImages)
+			.set({ caption })
+			.where(and(eq(projectImages.id, imageId), eq(projectImages.projectId, params.id)));
+	},
+
 	removeImage: async ({ request, params }) => {
 		const data = await request.formData();
 		const imageId = data.get('imageId') as string;

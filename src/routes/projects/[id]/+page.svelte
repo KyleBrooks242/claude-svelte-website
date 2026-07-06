@@ -59,10 +59,15 @@
 
 		{#if images.length > 0}
 			<div class="photo-grid">
-				{#each images as image}
-					<a href={image.url} target="_blank" rel="noopener noreferrer" class="photo-tile">
-						<ImageWithSkeleton src={image.url} alt={image.caption || project.title} />
-					</a>
+				{#each images as image (image.id)}
+					<figure class="photo-item">
+						<a href={image.url} target="_blank" rel="noopener noreferrer" class="photo-tile">
+							<ImageWithSkeleton src={image.url} alt={image.caption || project.title} />
+						</a>
+						{#if image.caption}
+							<figcaption class="photo-caption">{image.caption}</figcaption>
+						{/if}
+					</figure>
 				{/each}
 			</div>
 		{/if}
@@ -76,12 +81,23 @@
 		gap: 1rem;
 	}
 
+	.photo-item {
+		margin: 0;
+	}
+
 	.photo-tile {
 		display: block;
 		height: 220px;
 		border-radius: var(--radius);
 		overflow: hidden;
 		border: 1px solid var(--border);
+	}
+
+	.photo-caption {
+		margin-top: 0.5rem;
+		font-size: 0.85rem;
+		color: var(--text-muted);
+		text-align: center;
 	}
 
 	.photo-tile :global(.img-skeleton-img) {

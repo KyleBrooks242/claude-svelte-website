@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import ProjectForm from '$lib/ProjectForm.svelte';
+	import ImageCaptionForm from '$lib/ImageCaptionForm.svelte';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -51,16 +52,14 @@
 
 			{#if images.length > 0}
 				<div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;">
-					{#each images as image}
+					{#each images as image (image.id)}
 						<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;width:100px;">
 							<img
 								src={image.url}
 								alt={image.caption}
 								style="width:100px;height:100px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);"
 							/>
-							{#if image.caption}
-								<p style="font-size:0.75rem;color:var(--text-muted);text-align:center;word-break:break-word;">{image.caption}</p>
-							{/if}
+							<ImageCaptionForm {image} />
 							<form method="POST" action="?/removeImage" style="display:contents;"
 								use:enhance={() => {
 									removingImageId = image.id;
