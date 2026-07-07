@@ -18,7 +18,7 @@
 		<p class="section-tag">Writing</p>
 		<h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Blog</h1>
 		<p style="color: var(--text-muted); margin-bottom: 3rem;">
-			Thoughts on software, tools, and craft. Updated occasionally.
+			Thoughts on software, tools, and craft. Updated never.
 		</p>
 
 		<ul style="list-style:none;display:flex;flex-direction:column;gap:1.5rem;">
