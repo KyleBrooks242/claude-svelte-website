@@ -26,7 +26,7 @@
 			<h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Contact</h1>
 
 			<p style="color: var(--text-muted); margin-bottom: 2rem;">
-				Feel free to reach out — whether it's about a project, an opportunity, or just to say hi.
+				Feel free to reach out about a project, an opportunity, or just to say hi!
 			</p>
 
 
