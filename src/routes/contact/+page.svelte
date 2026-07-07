@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
 	let submitting = $state(false);
 </script>
 
-<svelte:head><title>Contact · Kyle Brooks</title></svelte:head>
+<svelte:head>
+	<title>Contact · Kyle Brooks</title>
+	<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</svelte:head>
 
 <main class="page">
 	<div class="container">
@@ -28,7 +32,7 @@
 
 			{#if form?.success}
 				<div class="card" style="margin-bottom: 2rem;">
-					<p>Thanks for reaching out — I'll get back to you soon.</p>
+					<p>Thanks for reaching out! I'll get back to you soon.</p>
 				</div>
 			{:else}
 				<form
@@ -36,7 +40,11 @@
 					style="margin-bottom: 2.5rem;"
 					use:enhance={() => {
 						submitting = true;
-						return async ({ update }) => { await update(); submitting = false; };
+						return async ({ update }) => {
+							await update();
+							submitting = false;
+							(window as any).turnstile?.reset();
+						};
 					}}
 				>
 					<!-- honeypot field, hidden from real users -->
@@ -65,6 +73,8 @@
 						<label for="body">Message</label>
 						<textarea id="body" name="body" rows="5" required maxlength="500">{form?.body ?? ''}</textarea>
 					</div>
+
+					<div class="cf-turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY} style="margin-bottom:1rem;"></div>
 
 					<button type="submit" class="btn" disabled={submitting}>
 						{submitting ? 'Sending…' : 'Send message'}

@@ -2,6 +2,7 @@ import { db } from '$lib/db';
 import { messages } from '$lib/schema';
 import { and, count, eq, gt } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
+import { TURNSTILE_SECRET_KEY } from '$env/static/private';
 import type { Actions } from './$types';
 
 const NAME_MAX = 50;
@@ -16,6 +17,7 @@ export const actions: Actions = {
 		const name = (data.get('name') as string ?? '').trim();
 		const email = (data.get('email') as string ?? '').trim();
 		const body = (data.get('body') as string ?? '').trim();
+		const turnstileToken = (data.get('cf-turnstile-response') as string ?? '');
 
 		// Honeypot: bots tend to fill every field, real users never see or fill this one.
 		if ((data.get('company') as string ?? '') !== '') {
@@ -33,6 +35,20 @@ export const actions: Actions = {
 		}
 
 		const ip = getClientAddress();
+
+		if (!turnstileToken) {
+			return fail(400, { message: 'Please complete the verification challenge.', name, email, body });
+		}
+		const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: new URLSearchParams({ secret: TURNSTILE_SECRET_KEY, response: turnstileToken, remoteip: ip }),
+		});
+		const verifyData = (await verifyRes.json()) as { success: boolean };
+		if (!verifyData.success) {
+			return fail(400, { message: 'Verification failed. Please try again.', name, email, body });
+		}
+
 		const cutoff = new Date(Date.now() - RATE_WINDOW_MS);
 		const [{ value: recentCount }] = await db
 			.select({ value: count() })
