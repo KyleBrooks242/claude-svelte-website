@@ -1,6 +1,17 @@
 <script lang="ts">
-	const skills = ['AWS', 'TypeScript', 'Python', 'Angular', 'Node.js', 'PostgreSQL', 'Terraform', 'Docker'];
-	const extraSkills = ['Tight Deadlines', 'Incomplete Requirements', 'Poorly Documented Services', 'Difficult Coworkers']
+	const skills = ['AWS', 'TypeScript', 'Python', 'Angular', 'Javascript', 'Node.js', 'PostgreSQL', 'Terraform', 'Docker', 'MongoDB'];
+	const extraSkills = ['Tight Deadlines', 'Incomplete Requirements', 'Poorly Documented Services', 'Difficult Coworkers'];
+
+	function shuffle<T>(items: T[]): T[] {
+		const result = [...items];
+		for (let i = result.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[result[i], result[j]] = [result[j], result[i]];
+		}
+		return result;
+	}
+
+	const marqueeSkills = shuffle([...skills, ...extraSkills]);
 </script>
 
 <svelte:head><title>Kyle Brooks</title></svelte:head>
@@ -31,10 +42,10 @@
 			<h2 style="font-size: 1.5rem; margin-bottom: 1.25rem;">What I work with</h2>
 			<div class="skill-marquee">
 				<div class="skill-track">
-					{#each skills as skill}
+					{#each marqueeSkills as skill}
 						<span class="badge">{skill}</span>
 					{/each}
-					{#each skills as skill}
+					{#each marqueeSkills as skill}
 						<span class="badge" aria-hidden="true">{skill}</span>
 					{/each}
 				</div>
