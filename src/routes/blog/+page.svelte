@@ -28,8 +28,6 @@
 						<article class="card" style="cursor:pointer;">
 							<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap;">
 								<time style="font-size:0.8rem;color:var(--text-muted);">{formatDate(post.publishedAt)}</time>
-								<span style="color:var(--border);">·</span>
-								<span style="font-size:0.8rem;color:var(--text-muted);">{readingTime(post.summary)} read</span>
 							</div>
 							<h2 style="font-size:1.1rem;margin-bottom:0.5rem;">{post.title}</h2>
 							<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:0.75rem;">{post.summary}</p>
