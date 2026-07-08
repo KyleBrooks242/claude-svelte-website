@@ -75,7 +75,7 @@
 		display: flex;
 		width: max-content;
 		gap: 0.5rem;
-		animation: scroll-across 24s linear infinite;
+		animation: scroll-across 50s linear infinite;
 	}
 
 	.skill-track .badge {
