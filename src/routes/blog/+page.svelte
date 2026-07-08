@@ -18,7 +18,7 @@
 		<p class="section-tag">Writing</p>
 		<h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Blog</h1>
 		<p style="color: var(--text-muted); margin-bottom: 3rem;">
-			Thoughts on software, tools, and craft. Updated occasionally.
+			Thoughts on software, tools, and craft. Updated never.
 		</p>
 
 		<ul style="list-style:none;display:flex;flex-direction:column;gap:1.5rem;">
@@ -28,8 +28,6 @@
 						<article class="card" style="cursor:pointer;">
 							<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap;">
 								<time style="font-size:0.8rem;color:var(--text-muted);">{formatDate(post.publishedAt)}</time>
-								<span style="color:var(--border);">·</span>
-								<span style="font-size:0.8rem;color:var(--text-muted);">{readingTime(post.summary)} read</span>
 							</div>
 							<h2 style="font-size:1.1rem;margin-bottom:0.5rem;">{post.title}</h2>
 							<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:0.75rem;">{post.summary}</p>

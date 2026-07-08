@@ -16,10 +16,6 @@
 		archived: '#9ca3af',
 	};
 
-	const kindIcon: Record<string, string> = {
-		software: '💻',
-		woodworking: '🪵',
-	};
 </script>
 
 {#snippet projectCard(project: ProjectWithCover)}
@@ -29,9 +25,7 @@
 				{#if project.coverImage}
 					<ImageWithSkeleton src={project.coverImage} alt={project.title} />
 				{:else}
-					<div class="project-card-image project-card-placeholder">
-						<span>{kindIcon[project.kind]}</span>
-					</div>
+					<div class="project-card-image project-card-placeholder"></div>
 				{/if}
 			</div>
 			<div class="project-card-body">
@@ -74,7 +68,6 @@
 		{#if softwareProjects.length > 0}
 			<section style="margin-bottom: 3.5rem;">
 				<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
-					<span style="font-size:1.3rem;">💻</span>
 					<h2 style="font-size:1.25rem;">Software</h2>
 				</div>
 				<div class="projects-grid">
@@ -93,7 +86,6 @@
 		{#if woodworkingProjects.length > 0}
 			<section>
 				<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;margin-top:2rem;">
-					<span style="font-size:1.3rem;">🪵</span>
 					<h2 style="font-size:1.25rem;">Woodworking</h2>
 				</div>
 				<div class="projects-grid">
@@ -150,12 +142,7 @@
 	}
 
 	.project-card-placeholder {
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		background: var(--bg-secondary);
-		font-size: 2.25rem;
-		opacity: 0.6;
 	}
 
 	.project-card-body {
