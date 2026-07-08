@@ -1,5 +1,6 @@
 <script lang="ts">
 	const skills = ['AWS', 'TypeScript', 'Python', 'Angular', 'Node.js', 'PostgreSQL', 'Terraform', 'Docker'];
+	const extraSkills = ['Tight Deadlines', 'Incomplete Requirements', 'Poorly Documented Services', 'Difficult Coworkers']
 </script>
 
 <svelte:head><title>Kyle Brooks</title></svelte:head>
@@ -28,10 +29,15 @@
 		<section style="margin-bottom: 4rem;">
 			<p class="section-tag">Skills</p>
 			<h2 style="font-size: 1.5rem; margin-bottom: 1.25rem;">What I work with</h2>
-			<div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
-				{#each skills as skill}
-					<span class="badge">{skill}</span>
-				{/each}
+			<div class="skill-marquee">
+				<div class="skill-track">
+					{#each skills as skill}
+						<span class="badge">{skill}</span>
+					{/each}
+					{#each skills as skill}
+						<span class="badge" aria-hidden="true">{skill}</span>
+					{/each}
+				</div>
 			</div>
 		</section>
 
@@ -47,3 +53,26 @@
 
 	</div>
 </main>
+
+<style>
+	.skill-marquee {
+		overflow: hidden;
+		mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+	}
+
+	.skill-track {
+		display: flex;
+		width: max-content;
+		gap: 0.5rem;
+		animation: scroll-across 24s linear infinite;
+	}
+
+	@keyframes scroll-across {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(-50%);
+		}
+	}
+</style>
