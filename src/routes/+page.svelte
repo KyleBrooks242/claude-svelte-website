@@ -78,6 +78,12 @@
 		animation: scroll-across 24s linear infinite;
 	}
 
+	.skill-track .badge {
+		color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 12%, transparent);
+		border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+	}
+
 	@keyframes scroll-across {
 		from {
 			transform: translateX(0);
