@@ -176,6 +176,7 @@
 				Full-stack, cloud-native, and built to last. Here's the play-by-play.
 			</p>
 			<a href="#timeline" class="scroll-cue" aria-label="Scroll to timeline">
+				<span>Scroll</span>
 				<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M12 5v14M5 12l7 7 7-7" />
 				</svg>
