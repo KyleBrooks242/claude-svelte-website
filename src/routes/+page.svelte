@@ -1,5 +1,23 @@
 <script lang="ts">
-	const skills = ['AWS', 'TypeScript', 'Python', 'Angular', 'Javascript', 'Node.js', 'PostgreSQL', 'Terraform', 'Docker', 'MongoDB'];
+	const skills = 
+	[
+		'AWS',
+		'TypeScript',
+		'Javascript',
+		'Python',
+		'Node.js',
+		'Next.js',
+		'Angular',
+		'FastAPI',
+		'Serverless',
+		'Github Actions',
+		'PostgreSQL',
+		'Terraform',
+		'Docker', 
+		'MongoDB',
+		'DynamoDB',
+		'Azure'
+	];
 	const extraSkills = ['Tight Deadlines', 'Incomplete Requirements', 'Poorly Documented Services', 'Difficult Coworkers'];
 
 	function shuffle<T>(items: T[]): T[] {
