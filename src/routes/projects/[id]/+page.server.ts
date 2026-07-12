@@ -1,5 +1,6 @@
 import { db } from '$lib/db';
 import { projectImages, projects } from '$lib/schema';
+import { renderMarkdown } from '$lib/markdown';
 import { asc, eq } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
@@ -20,6 +21,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			createdAt: project.createdAt.toISOString(),
 			updatedAt: project.updatedAt.toISOString(),
 		},
+		descriptionHtml: renderMarkdown(project.description),
 		images,
 	};
 };

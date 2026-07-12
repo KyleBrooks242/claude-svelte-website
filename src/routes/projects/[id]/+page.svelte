@@ -5,6 +5,7 @@
 	let { data }: { data: PageData } = $props();
 	const project = $derived(data.project);
 	const images = $derived(data.images);
+	const descriptionHtml = $derived(data.descriptionHtml);
 
 	const statusColor: Record<string, string> = {
 		live: '#22c55e',
@@ -12,6 +13,17 @@
 		wip: '#f59e0b',
 		archived: '#9ca3af',
 	};
+
+	let viewMode: 'grid' | 'carousel' = $state('grid');
+	let activeSlide = $state(0);
+
+	function prevSlide() {
+		activeSlide = (activeSlide - 1 + images.length) % images.length;
+	}
+
+	function nextSlide() {
+		activeSlide = (activeSlide + 1) % images.length;
+	}
 </script>
 
 <svelte:head><title>{project.title} · Kyle Brooks</title></svelte:head>
@@ -55,26 +67,215 @@
 
 		<hr class="divider" />
 
-		<p style="color:var(--text-muted);font-size:1rem;line-height:1.7;margin:2rem 0;max-width:65ch;">{project.description}</p>
+		<div class="prose" style="margin:2rem 0;max-width:65ch;">
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+			{@html descriptionHtml}
+		</div>
 
 		{#if images.length > 0}
-			<div class="photo-grid">
-				{#each images as image (image.id)}
-					<figure class="photo-item">
-						<a href={image.url} target="_blank" rel="noopener noreferrer" class="photo-tile">
-							<ImageWithSkeleton src={image.url} alt={image.caption || project.title} />
-						</a>
-						{#if image.caption}
-							<figcaption class="photo-caption">{image.caption}</figcaption>
-						{/if}
-					</figure>
-				{/each}
+			<div class="photo-toolbar">
+				<div class="view-toggle" role="group" aria-label="Image display mode">
+					<button
+						type="button"
+						class="view-toggle-btn"
+						class:active={viewMode === 'grid'}
+						onclick={() => (viewMode = 'grid')}
+					>
+						Grid
+					</button>
+					<button
+						type="button"
+						class="view-toggle-btn"
+						class:active={viewMode === 'carousel'}
+						onclick={() => (viewMode = 'carousel')}
+					>
+						Carousel
+					</button>
+				</div>
 			</div>
+
+			{#if viewMode === 'grid'}
+				<div class="photo-grid">
+					{#each images as image (image.id)}
+						<figure class="photo-item">
+							<a href={image.url} target="_blank" rel="noopener noreferrer" class="photo-tile">
+								<ImageWithSkeleton src={image.url} alt={image.caption || project.title} />
+							</a>
+							{#if image.caption}
+								<figcaption class="photo-caption">{image.caption}</figcaption>
+							{/if}
+						</figure>
+					{/each}
+				</div>
+			{:else}
+				<div class="carousel">
+					<div class="carousel-viewport">
+						<a
+							href={images[activeSlide].url}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="carousel-tile"
+						>
+							<ImageWithSkeleton src={images[activeSlide].url} alt={images[activeSlide].caption || project.title} />
+						</a>
+
+						{#if images.length > 1}
+							<button type="button" class="carousel-nav carousel-nav-prev" aria-label="Previous image" onclick={prevSlide}>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<polyline points="15 18 9 12 15 6"></polyline>
+								</svg>
+							</button>
+							<button type="button" class="carousel-nav carousel-nav-next" aria-label="Next image" onclick={nextSlide}>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<polyline points="9 18 15 12 9 6"></polyline>
+								</svg>
+							</button>
+						{/if}
+					</div>
+
+					{#if images[activeSlide].caption}
+						<p class="photo-caption">{images[activeSlide].caption}</p>
+					{/if}
+
+					{#if images.length > 1}
+						<div class="carousel-dots">
+							{#each images as image, i (image.id)}
+								<button
+									type="button"
+									class="carousel-dot"
+									class:active={i === activeSlide}
+									aria-label={`Go to image ${i + 1}`}
+									onclick={() => (activeSlide = i)}
+								></button>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			{/if}
 		{/if}
 	</div>
 </main>
 
 <style>
+	.photo-toolbar {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: 1rem;
+	}
+
+	.view-toggle {
+		display: inline-flex;
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		overflow: hidden;
+	}
+
+	.view-toggle-btn {
+		font-family: inherit;
+		font-size: 0.85rem;
+		padding: 0.4rem 0.9rem;
+		background: transparent;
+		color: var(--text-muted);
+		border: none;
+		cursor: pointer;
+		transition: background 0.15s ease, color 0.15s ease;
+	}
+
+	.view-toggle-btn + .view-toggle-btn {
+		border-left: 1px solid var(--border);
+	}
+
+	.view-toggle-btn:hover {
+		color: var(--text);
+	}
+
+	.view-toggle-btn.active {
+		background: var(--accent);
+		color: #fff;
+	}
+
+	.carousel {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.carousel-viewport {
+		position: relative;
+		width: 100%;
+		max-width: 720px;
+	}
+
+	.carousel-tile {
+		display: block;
+		height: min(60vh, 480px);
+		border-radius: var(--radius);
+		overflow: hidden;
+		border: 1px solid var(--border);
+	}
+
+	.carousel-tile :global(.img-skeleton-img) {
+		object-fit: contain;
+		background: var(--bg-secondary);
+	}
+
+	.carousel-nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 50%;
+		border: none;
+		background: rgba(0, 0, 0, 0.35);
+		backdrop-filter: blur(4px);
+		color: #fff;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		opacity: 0.75;
+		transition: opacity 0.15s ease, transform 0.15s ease;
+	}
+
+	.carousel-nav svg {
+		width: 1.1rem;
+		height: 1.1rem;
+	}
+
+	.carousel-nav:hover {
+		opacity: 1;
+		transform: translateY(-50%) scale(1.06);
+	}
+
+	.carousel-nav-prev {
+		left: 0.6rem;
+	}
+
+	.carousel-nav-next {
+		right: 0.6rem;
+	}
+
+	.carousel-dots {
+		display: flex;
+		gap: 0.5rem;
+		margin-top: 1rem;
+	}
+
+	.carousel-dot {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		border: none;
+		background: var(--border);
+		cursor: pointer;
+		padding: 0;
+	}
+
+	.carousel-dot.active {
+		background: var(--accent);
+	}
+
 	.photo-grid {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
