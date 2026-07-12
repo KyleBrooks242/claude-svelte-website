@@ -79,6 +79,7 @@ h1, h2, h3, h4 {
 	max-width: var(--max-w);
 	margin: 0 auto;
 	padding: 0 1.25rem;
+	background: var(--bg);
 }
 
 .page {
@@ -255,6 +256,18 @@ nav {
 .palette-dropdown-divider {
 	height: 1px;
 	background: var(--border);
+}
+
+.matrix-toggle-wrap {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+
+@media (max-width: 800px) {
+	.matrix-toggle-wrap {
+		display: none;
+	}
 }
 
 .palette-swatch-row {

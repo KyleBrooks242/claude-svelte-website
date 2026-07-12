@@ -155,6 +155,22 @@
 								<span class="switch-thumb"></span>
 							</button>
 						</div>
+						<div class="matrix-toggle-wrap">
+							<div class="palette-dropdown-divider"></div>
+							<div class="theme-toggle-row">
+								<span class="theme-toggle-label">Matrix mode</span>
+								<button
+									type="button"
+									class="switch"
+									role="switch"
+									aria-checked={matrixMode}
+									aria-label="Toggle matrix mode"
+									onclick={toggleMatrixMode}
+								>
+									<span class="switch-thumb"></span>
+								</button>
+							</div>
+						</div>
 						<div class="palette-dropdown-divider"></div>
 						<div class="palette-swatch-row" role="radiogroup" aria-label="Color palette">
 							{#each palettes as p}
@@ -170,20 +186,6 @@
 									onclick={() => setPalette(p.id)}
 								></button>
 							{/each}
-						</div>
-						<div class="palette-dropdown-divider"></div>
-						<div class="theme-toggle-row">
-							<span class="theme-toggle-label">Matrix mode</span>
-							<button
-								type="button"
-								class="switch"
-								role="switch"
-								aria-checked={matrixMode}
-								aria-label="Toggle matrix mode"
-								onclick={toggleMatrixMode}
-							>
-								<span class="switch-thumb"></span>
-							</button>
 						</div>
 					</div>
 				{/if}
