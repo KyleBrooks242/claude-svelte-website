@@ -5,6 +5,7 @@
 	let { data }: { data: PageData } = $props();
 	const project = $derived(data.project);
 	const images = $derived(data.images);
+	const descriptionHtml = $derived(data.descriptionHtml);
 
 	const statusColor: Record<string, string> = {
 		live: '#22c55e',
@@ -66,7 +67,10 @@
 
 		<hr class="divider" />
 
-		<p style="color:var(--text-muted);font-size:1rem;line-height:1.7;margin:2rem 0;max-width:65ch;">{project.description}</p>
+		<div class="prose" style="margin:2rem 0;max-width:65ch;">
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+			{@html descriptionHtml}
+		</div>
 
 		{#if images.length > 0}
 			<div class="photo-toolbar">
