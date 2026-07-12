@@ -59,6 +59,10 @@ body {
 	transition: background 0.2s, color 0.2s;
 }
 
+html.matrix-active body {
+	background: transparent;
+}
+
 a {
 	color: var(--accent);
 	text-decoration: none;
