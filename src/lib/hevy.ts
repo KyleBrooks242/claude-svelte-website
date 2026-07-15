@@ -24,9 +24,7 @@ export async function fetchLatestHevyWorkout(): Promise<HevyWorkout | null> {
 		'/workouts?page=1&pageSize=1',
 	);
 	if (res.workouts.length === 0) return null;
-	return res.workouts.reduce((latest, w) =>
-		new Date(w.start_time) > new Date(latest.start_time) ? w : latest,
-	);
+	return res.workouts[0]
 }
 
 export async function upsertHevyWorkout(workout: HevyWorkout): Promise<void> {
