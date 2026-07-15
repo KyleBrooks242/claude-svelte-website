@@ -80,6 +80,17 @@
 			<a href="/blog" class="btn btn-outline">Read posts →</a>
 		</section>
 
+		<hr class="divider" />
+
+		<section>
+			<p class="section-tag">Accountability</p>
+			<h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Keep me honest!</h2>
+			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
+				A live look at whether I'm actually sticking to my workouts.
+			</p>
+			<a href="/keep-me-honest" class="btn btn-outline">See my last workout →</a>
+		</section>
+
 	</div>
 </main>
 

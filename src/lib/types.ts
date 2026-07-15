@@ -38,3 +38,33 @@ export function readingTime(content: string): string {
 	const words = content.trim().split(/\s+/).length;
 	return `${Math.max(1, Math.ceil(words / 200))} min`;
 }
+
+export interface HevySet {
+	index: number;
+	type: 'normal' | 'warmup' | 'dropset' | 'failure';
+	weight_kg: number | null;
+	reps: number | null;
+	distance_meters: number | null;
+	duration_seconds: number | null;
+	rpe: number | null;
+	custom_metric: number | null;
+}
+
+export interface HevyExercise {
+	index: number;
+	title: string;
+	notes: string;
+	sets: HevySet[];
+}
+
+export interface HevyWorkout {
+	id: string;
+	title: string;
+	routine_id: string | null;
+	description: string;
+	start_time: string;
+	end_time: string;
+	updated_at: string;
+	created_at: string;
+	exercises: HevyExercise[];
+}
