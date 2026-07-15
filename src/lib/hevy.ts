@@ -21,7 +21,7 @@ export async function fetchHevyWorkout(workoutId: string): Promise<HevyWorkout> 
 
 export async function fetchLatestHevyWorkout(): Promise<HevyWorkout | null> {
 	const res = await hevyFetch<{ page: number; page_count: number; workouts: HevyWorkout[] }>(
-		'/workouts?page=1&pageSize=5',
+		'/workouts?page=1&pageSize=1',
 	);
 	if (res.workouts.length === 0) return null;
 	return res.workouts.reduce((latest, w) =>
