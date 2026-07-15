@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import type { HevySet } from '$lib/types';
+	import type { HevyExercise } from '$lib/types';
 
 	let { data }: { data: PageData } = $props();
 	const workout = $derived(data.workout);
+	const skippedCount = $derived(data.skippedCount);
+	const longestStreak = $derived(data.longestStreak);
 
 	let now = $state(Date.now());
 
@@ -55,13 +57,19 @@
 		return h ? `${h}h ${m}m` : `${m}m`;
 	}
 
-	function formatSet(set: HevySet): string {
-		if (set.weight_kg != null && set.reps != null) return `${set.weight_kg}kg × ${set.reps}`;
-		if (set.reps != null) return `${set.reps} reps`;
-		if (set.distance_meters != null) return `${set.distance_meters}m`;
-		if (set.duration_seconds != null) return `${set.duration_seconds}s`;
-		return '—';
+	function exerciseVolume(exercise: HevyExercise): number {
+		return exercise.sets.reduce((sum, set) => sum + (set.weight_kg ?? 0) * (set.reps ?? 0), 0);
 	}
+
+	const KG_TO_LB = 2.20462;
+
+	function formatWeight(kg: number): string {
+		return `${Math.round(kg * KG_TO_LB).toLocaleString()} lbs`;
+	}
+
+	const totalVolume = $derived(
+		workout ? workout.exercises.reduce((sum, exercise) => sum + exerciseVolume(exercise), 0) : 0,
+	);
 </script>
 
 <svelte:head><title>Keep me honest · Kyle Brooks</title></svelte:head>
@@ -72,44 +80,54 @@
 			← Back home
 		</a>
 
-		<header style="margin-bottom:2.5rem;">
-			<p class="section-tag">Accountability</p>
-			<h1 style="font-size:clamp(1.5rem, 4vw, 2.2rem);margin-bottom:1rem;">Keep me honest</h1>
-			<p style="color:var(--text-muted);">A live, public record synced straight from my workout log.</p>
-		</header>
-
-		<hr class="divider" />
-
 		{#if workout}
-			<section style="text-align:center;margin:2rem 0 3rem;">
-				<p class="section-tag">Time since last workout</p>
-				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;color:{statusColor};">{elapsed}</p>
-				<span
-					class="badge"
-					style="color:{statusColor};border-color:{statusColor}33;background:{statusColor}11;"
-				>{statusLabel}</span>
+			<section style="display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;text-align:center;margin:2rem 0 3rem;">
+				<div>
+					<p class="section-tag">Time since last workout</p>
+					<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;color:{statusColor};">{elapsed}</p>
+					<span
+						class="badge"
+						style="color:{statusColor};border-color:{statusColor}33;background:{statusColor}11;"
+					>{statusLabel}</span>
+				</div>
+				<div>
+					<p class="section-tag">Workouts skipped</p>
+					<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{skippedCount}</p>
+				</div>
+				<div>
+					<p class="section-tag">Longest streak</p>
+					<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{longestStreak}</p>
+				</div>
 			</section>
 
 			<section class="card">
 				<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;">
 					<h2 style="font-size:1.25rem;">{workout.title}</h2>
+					<time style="font-size:0.85rem;color:var(--text-muted);">{formatDate(workout.startTime)}</time>
 					<span class="badge">{formatDuration(workout.startTime, workout.endTime)}</span>
 				</div>
-				<time style="font-size:0.85rem;color:var(--text-muted);">{formatDate(workout.startTime)}</time>
 
-				<div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">
+				{#if workout.description}
+					<p style="margin-top:0.75rem;color:var(--text-muted);">{workout.description}</p>
+				{/if}
+
+				<div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.6rem;">
+					<!-- <div style="display:flex;justify-content:space-between;gap:1rem;font-size:0.9rem;">
+						<span style="font-style:italic;">Exercise</span>
+						<span style="color:var(--text-muted);white-space:nowrap;font-style:italic;">Total Volume</span>
+					</div> -->
+					<hr class="divider" />
 					{#each workout.exercises as exercise (exercise.index)}
-						<div>
-							<h3 style="font-size:1rem;margin-bottom:0.5rem;">{exercise.title}</h3>
-							<ul style="list-style:none;display:flex;flex-direction:column;gap:0.25rem;padding:0;">
-								{#each exercise.sets as set (set.index)}
-									<li style="font-size:0.9rem;color:var(--text-muted);">
-										Set {set.index + 1}{set.type !== 'normal' ? ` (${set.type})` : ''}: {formatSet(set)}
-									</li>
-								{/each}
-							</ul>
+						<div style="display:flex;justify-content:space-between;gap:1rem;font-size:0.9rem;">
+							<span>{exercise.title}</span>
+							<span style="color:var(--text-muted);white-space:nowrap;">{formatWeight(exerciseVolume(exercise))}</span>
 						</div>
 					{/each}
+				</div>
+
+				<div style="display:flex;justify-content:space-between;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-weight:600;">
+					<span>Total weight lifted</span>
+					<span>{formatWeight(totalVolume)}</span>
 				</div>
 			</section>
 		{:else}

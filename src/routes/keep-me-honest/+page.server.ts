@@ -27,8 +27,12 @@ export const load: PageServerLoad = async () => {
 		}
 	}
 
+	// TODO: derive these from actual workout history/frequency instead of stubs.
+	const skippedCount = 0;
+	const longestStreak = 0;
+
 	if (!row) {
-		return { workout: null };
+		return { workout: null, skippedCount, longestStreak };
 	}
 
 	return {
@@ -40,5 +44,7 @@ export const load: PageServerLoad = async () => {
 			endTime: row.endTime.toISOString(),
 			exercises: row.exercises,
 		},
+		skippedCount,
+		longestStreak,
 	};
 };
