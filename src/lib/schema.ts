@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, integer, jsonb, pgTable, real, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import type { HevyExercise } from './types';
 
 export const posts = pgTable('posts', {
@@ -68,3 +68,24 @@ export const hevyWorkouts = pgTable('hevy_workouts', {
 
 export type HevyWorkoutRow = typeof hevyWorkouts.$inferSelect;
 export type NewHevyWorkoutRow = typeof hevyWorkouts.$inferInsert;
+
+export const exercisePrs = pgTable('exercise_prs', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	exerciseName: text('exercise_name').notNull(),
+	exerciseTemplateId: text('exercise_template_id').notNull().unique(),
+	personalRecord: real('personal_record').notNull(),
+	numberOfReps: integer('number_of_reps').notNull(),
+	totalWeightLifted: real('total_weight_lifted').notNull().default(0),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ExercisePr = typeof exercisePrs.$inferSelect;
+export type NewExercisePr = typeof exercisePrs.$inferInsert;
+
+export const workoutStats = pgTable('workout_stats', {
+	id: text('id').primaryKey().default('singleton'),
+	totalWeightLifted: real('total_weight_lifted').notNull().default(0),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type WorkoutStatsRow = typeof workoutStats.$inferSelect;

@@ -25,6 +25,7 @@
 				<a href="/admin" style="padding:0.4rem 1rem;font-size:0.9rem;font-weight:600;border-bottom:2px solid transparent;color:var(--text-muted);text-decoration:none;">Blog Posts</a>
 				<a href="/admin/projects" style="padding:0.4rem 1rem;font-size:0.9rem;font-weight:600;border-bottom:2px solid var(--accent);color:var(--accent);text-decoration:none;">Projects</a>
 				<a href="/admin/messages" style="padding:0.4rem 1rem;font-size:0.9rem;font-weight:600;border-bottom:2px solid transparent;color:var(--text-muted);text-decoration:none;">Messages</a>
+				<a href="/admin/exercise-prs" style="padding:0.4rem 1rem;font-size:0.9rem;font-weight:600;border-bottom:2px solid transparent;color:var(--text-muted);text-decoration:none;">Exercise PRs</a>
 			</div>
 		</div>
 

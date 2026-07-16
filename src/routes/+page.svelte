@@ -73,7 +73,7 @@
 			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
 				A live look at whether I'm actually sticking to my workouts.
 			</p>
-			<a href="/keep-me-honest" class="btn btn-outline">See my latest stats →</a>
+			<a href="/exercise" class="btn btn-outline">See my latest stats →</a>
 		</section>
 
 		<hr class="divider" />

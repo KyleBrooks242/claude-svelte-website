@@ -54,7 +54,24 @@ export interface HevyExercise {
 	index: number;
 	title: string;
 	notes: string;
+	exercise_template_id: string;
+	supersets_id: number | null;
 	sets: HevySet[];
+}
+
+export interface HevyExerciseHistoryEntry {
+	workout_id: string;
+	workout_title: string;
+	workout_start_time: string;
+	workout_end_time: string;
+	exercise_template_id: string;
+	weight_kg: number | null;
+	reps: number | null;
+	distance_meters: number | null;
+	duration_seconds: number | null;
+	rpe: number | null;
+	custom_metric: number | null;
+	set_type: 'normal' | 'warmup' | 'dropset' | 'failure';
 }
 
 export interface HevyWorkout {

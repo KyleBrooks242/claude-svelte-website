@@ -5,7 +5,8 @@
 	let { data }: { data: PageData } = $props();
 	const workout = $derived(data.workout);
 	const skippedCount = $derived(data.skippedCount);
-	const longestStreak = $derived(data.longestStreak);
+	const totalWeightLifted = $derived(data.totalWeightLifted);
+	const exercisePrs = $derived(data.exercisePrs);
 
 	let now = $state(Date.now());
 
@@ -22,13 +23,13 @@
 	const HOUR = 60 * 60 * 1000;
 	const statusColor = $derived.by(() => {
 		if (!workout) return '#9ca3af';
-		if (elapsedMs < 24 * HOUR) return '#22c55e';
+		if (elapsedMs < 48 * HOUR) return '#22c55e';
 		if (elapsedMs < 72 * HOUR) return '#f59e0b';
 		return '#ef4444';
 	});
 	const statusLabel = $derived.by(() => {
 		if (!workout) return '';
-		if (elapsedMs < 24 * HOUR) return 'On track';
+		if (elapsedMs < 48 * HOUR) return 'On track';
 		if (elapsedMs < 72 * HOUR) return 'Cutting it close';
 		return 'Slacking';
 	});
@@ -76,7 +77,7 @@
 	);
 </script>
 
-<svelte:head><title>Keep me honest · Kyle Brooks</title></svelte:head>
+<svelte:head><title>Exercise · Kyle Brooks</title></svelte:head>
 
 <main class="page">
 	<div class="container">
@@ -84,26 +85,26 @@
 			← Back home
 		</a>
 
-		{#if workout}
-			<section style="display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;text-align:center;margin:2rem 0 3rem;">
-				<div>
-					<p class="section-tag">Longest streak</p>
-					<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{longestStreak}</p>
-				</div>
-				<div>
-					<p class="section-tag">Time since last workout</p>
-					<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;color:{statusColor};">{elapsed}</p>
-					<span
-						class="badge"
-						style="color:{statusColor};border-color:{statusColor}33;background:{statusColor}11;"
-					>{statusLabel}</span>
-				</div>
-				<div>
-					<p class="section-tag">Workouts skipped</p>
-					<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{skippedCount}</p>
-				</div>
-			</section>
+		<section style="display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;text-align:center;margin:2rem 0 3rem;">
+			<div>
+				<p class="section-tag">Total weight lifted</p>
+				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{formatWeight(totalWeightLifted)}</p>
+			</div>
+			<div>
+				<p class="section-tag">Time since last workout</p>
+				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;color:{statusColor};">{elapsed}</p>
+				<span
+					class="badge"
+					style="color:{statusColor};border-color:{statusColor}33;background:{statusColor}11;"
+				>{statusLabel}</span>
+			</div>
+			<div>
+				<p class="section-tag">Workouts skipped</p>
+				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{skippedCount}</p>
+			</div>
+		</section>
 
+		{#if workout}
 			<section class="workout-card">
 				<div class="workout-card-header">
 					<div>
@@ -141,6 +142,23 @@
 		{:else}
 			<div class="card" style="text-align:center;padding:3rem 1.5rem;">
 				<p style="color:var(--text-muted);">No workout data yet — check back soon.</p>
+			</div>
+		{/if}
+
+		{#if exercisePrs.length > 0}
+			<hr class="divider" style="margin:3rem 0;" />
+
+			<p class="section-tag">Personal records</p>
+			<h2 style="font-size:1.25rem;margin-bottom:1.5rem;">Best lifts</h2>
+
+			<div class="pr-grid">
+				{#each exercisePrs as pr (pr.id)}
+					<div class="pr-card">
+						<p class="pr-card-name">{pr.exerciseName}</p>
+						<p class="pr-card-value">{formatWeight(pr.personalRecord)}</p>
+						<p class="pr-card-reps">× {pr.numberOfReps} reps</p>
+					</div>
+				{/each}
 			</div>
 		{/if}
 	</div>
@@ -279,5 +297,63 @@
 		.exercise-bar-track {
 			display: none;
 		}
+	}
+
+	.pr-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		gap: 1rem;
+	}
+
+	.pr-card {
+		position: relative;
+		overflow: hidden;
+		background: var(--card-bg);
+		border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+		border-radius: var(--radius);
+		padding: 1.25rem;
+		text-align: center;
+		transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+	}
+
+	.pr-card::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);
+		pointer-events: none;
+	}
+
+	.pr-card:hover {
+		transform: translateY(-3px);
+		border-color: var(--accent);
+		box-shadow: 0 8px 28px color-mix(in srgb, var(--accent) 30%, transparent);
+	}
+
+	.pr-card-name {
+		position: relative;
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: var(--text-muted);
+		margin-bottom: 0.5rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.pr-card-value {
+		position: relative;
+		font-size: 1.9rem;
+		font-weight: 800;
+		color: var(--accent);
+		font-variant-numeric: tabular-nums;
+		line-height: 1.1;
+	}
+
+	.pr-card-reps {
+		position: relative;
+		font-size: 0.8rem;
+		color: var(--text-muted);
+		margin-top: 0.25rem;
 	}
 </style>
