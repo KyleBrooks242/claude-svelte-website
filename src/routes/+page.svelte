@@ -53,7 +53,31 @@
 		</section>
 
 		<hr class="divider" />
+		
+		<!-- Recent posts teaser -->
+		<section>
+			<p class="section-tag">Writing</p>
+			<h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">From the blog</h2>
+			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
+				Occasionally, I might write something
+			</p>
+			<a href="/blog" class="btn btn-outline">Read posts →</a>
+		</section>
 
+		<hr class="divider" />
+		
+		<!--Workout Teaser-->
+		<section>
+			<p class="section-tag">Accountability</p>
+			<h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Have I been working out?</h2>
+			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
+				A live look at whether I'm actually sticking to my workouts.
+			</p>
+			<a href="/keep-me-honest" class="btn btn-outline">See my latest stats →</a>
+		</section>
+
+		<hr class="divider" />
+		
 		<!-- Skills -->
 		<section style="margin-bottom: 4rem;">
 			<p class="section-tag">Skills</p>
@@ -70,15 +94,7 @@
 			</div>
 		</section>
 
-		<!-- Recent posts teaser -->
-		<section>
-			<p class="section-tag">Writing</p>
-			<h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">From the blog</h2>
-			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
-				Occasional thoughts on software, tooling, and craft.
-			</p>
-			<a href="/blog" class="btn btn-outline">Read posts →</a>
-		</section>
+		
 
 	</div>
 </main>

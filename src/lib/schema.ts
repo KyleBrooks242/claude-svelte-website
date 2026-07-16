@@ -1,4 +1,5 @@
-import { boolean, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import type { HevyExercise } from './types';
 
 export const posts = pgTable('posts', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -54,3 +55,16 @@ export const messages = pgTable('messages', {
 
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
+
+export const hevyWorkouts = pgTable('hevy_workouts', {
+	id: text('id').primaryKey(),
+	title: text('title').notNull(),
+	description: text('description').notNull().default(''),
+	startTime: timestamp('start_time', { withTimezone: true }).notNull(),
+	endTime: timestamp('end_time', { withTimezone: true }).notNull(),
+	exercises: jsonb('exercises').notNull().$type<HevyExercise[]>(),
+	syncedAt: timestamp('synced_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type HevyWorkoutRow = typeof hevyWorkouts.$inferSelect;
+export type NewHevyWorkoutRow = typeof hevyWorkouts.$inferInsert;
