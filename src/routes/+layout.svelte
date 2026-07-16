@@ -77,6 +77,7 @@
 		{ href: '/experience', label: 'Experience' },
 		{ href: '/projects', label: 'Projects' },
 		{ href: '/blog', label: 'Blog' },
+		{ href: '/exercise', label: 'Exercise' },
 		{ href: '/contact', label: 'Contact' },
 	];
 </script>

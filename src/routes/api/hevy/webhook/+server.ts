@@ -1,6 +1,12 @@
 import { json } from '@sveltejs/kit';
 import { HEVY_WEBHOOK_SECRET } from '$env/static/private';
-import { fetchHevyWorkout, upsertHevyWorkout } from '$lib/hevy';
+import {
+	fetchHevyWorkout,
+	incrementTotalWeightLifted,
+	updateExercisePrsFromWorkout,
+	upsertHevyWorkout,
+} from '$lib/hevy';
+import type { HevyWorkout } from '$lib/types';
 import type { RequestHandler } from './$types';
 
 function extractWorkoutId(body: unknown): string | null {
@@ -43,12 +49,20 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ ok: false, error: 'no workoutId in payload' }, { status: 400 });
 	}
 
+	let workout: HevyWorkout;
 	try {
-		const workout = await fetchHevyWorkout(workoutId);
+		workout = await fetchHevyWorkout(workoutId);
 		await upsertHevyWorkout(workout);
 	} catch (err) {
 		console.error('[hevy webhook] failed to sync workout', workoutId, err);
 		return json({ ok: false, error: 'sync failed' }, { status: 500 });
+	}
+
+	try {
+		await updateExercisePrsFromWorkout(workout);
+		await incrementTotalWeightLifted(workout);
+	} catch (err) {
+		console.error('[hevy webhook] stats update failed for workout', workoutId, err);
 	}
 
 	return json({ ok: true });

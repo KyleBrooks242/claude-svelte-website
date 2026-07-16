@@ -1,7 +1,7 @@
 import { db } from '$lib/db';
-import { hevyWorkouts } from '$lib/schema';
+import { exercisePrs, hevyWorkouts, workoutStats } from '$lib/schema';
 import { fetchLatestHevyWorkout, upsertHevyWorkout } from '$lib/hevy';
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
@@ -23,16 +23,22 @@ export const load: PageServerLoad = async () => {
 					.limit(1);
 			}
 		} catch (err) {
-			console.error('[keep-me-honest] live backfill from Hevy failed:', err);
+			console.error('[exercise] live backfill from Hevy failed:', err);
 		}
 	}
 
-	// TODO: derive these from actual workout history/frequency instead of stubs.
+	// TODO: derive this from actual workout history/frequency instead of a stub.
 	const skippedCount = 0;
-	const longestStreak = 0;
+
+	const [prRows, [stats]] = await Promise.all([
+		db.select().from(exercisePrs).orderBy(exercisePrs.exerciseName),
+		db.select().from(workoutStats).where(eq(workoutStats.id, 'singleton')).limit(1),
+	]);
+
+	const totalWeightLifted = stats?.totalWeightLifted ?? 0;
 
 	if (!row) {
-		return { workout: null, skippedCount, longestStreak };
+		return { workout: null, skippedCount, totalWeightLifted, exercisePrs: prRows };
 	}
 
 	return {
@@ -45,6 +51,7 @@ export const load: PageServerLoad = async () => {
 			exercises: row.exercises,
 		},
 		skippedCount,
-		longestStreak,
+		totalWeightLifted,
+		exercisePrs: prRows,
 	};
 };
