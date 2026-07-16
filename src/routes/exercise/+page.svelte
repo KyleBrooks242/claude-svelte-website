@@ -87,8 +87,8 @@
 
 		<section style="display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;text-align:center;margin:2rem 0 3rem;">
 			<div>
-				<p class="section-tag">Total weight lifted</p>
-				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{formatWeight(totalWeightLifted)}</p>
+				<p class="section-tag">Workouts skipped</p>
+				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{skippedCount}</p>
 			</div>
 			<div>
 				<p class="section-tag">Time since last workout</p>
@@ -99,8 +99,8 @@
 				>{statusLabel}</span>
 			</div>
 			<div>
-				<p class="section-tag">Workouts skipped</p>
-				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{skippedCount}</p>
+				<p class="section-tag">Total weight lifted</p>
+				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{formatWeight(totalWeightLifted)}</p>
 			</div>
 		</section>
 
