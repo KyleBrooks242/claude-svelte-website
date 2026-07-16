@@ -70,6 +70,10 @@
 	const totalVolume = $derived(
 		workout ? workout.exercises.reduce((sum, exercise) => sum + exerciseVolume(exercise), 0) : 0,
 	);
+
+	const maxExerciseVolume = $derived(
+		workout ? Math.max(0, ...workout.exercises.map((exercise) => exerciseVolume(exercise))) : 0,
+	);
 </script>
 
 <svelte:head><title>Keep me honest · Kyle Brooks</title></svelte:head>
@@ -100,34 +104,38 @@
 				</div>
 			</section>
 
-			<section class="card">
-				<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;">
-					<h2 style="font-size:1.25rem;">{workout.title}</h2>
-					<time style="font-size:0.85rem;color:var(--text-muted);">{formatDate(workout.startTime)}</time>
-					<span class="badge">{formatDuration(workout.startTime, workout.endTime)}</span>
+			<section class="workout-card">
+				<div class="workout-card-header">
+					<div>
+						<p class="workout-card-eyebrow">{formatDate(workout.startTime)}</p>
+						<h2 class="workout-card-title">{workout.title}</h2>
+					</div>
+					<span class="badge workout-duration-badge">{formatDuration(workout.startTime, workout.endTime)}</span>
 				</div>
 
 				{#if workout.description}
-					<p style="margin-top:0.75rem;color:var(--text-muted);">{workout.description}</p>
+					<p class="workout-description">{workout.description}</p>
 				{/if}
 
-				<div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.6rem;">
-					<!-- <div style="display:flex;justify-content:space-between;gap:1rem;font-size:0.9rem;">
-						<span style="font-style:italic;">Exercise</span>
-						<span style="color:var(--text-muted);white-space:nowrap;font-style:italic;">Total Volume</span>
-					</div> -->
-					<hr class="divider" />
+				<div class="exercise-list">
 					{#each workout.exercises as exercise (exercise.index)}
-						<div style="display:flex;justify-content:space-between;gap:1rem;font-size:0.9rem;">
-							<span>{exercise.title}</span>
-							<span style="color:var(--text-muted);white-space:nowrap;">{formatWeight(exerciseVolume(exercise))}</span>
+						{@const volume = exerciseVolume(exercise)}
+						<div class="exercise-row">
+							<span class="exercise-name">{exercise.title}</span>
+							<div class="exercise-bar-track">
+								<div
+									class="exercise-bar-fill"
+									style="width:{maxExerciseVolume ? (volume / maxExerciseVolume) * 100 : 0}%;"
+								></div>
+							</div>
+							<span class="exercise-volume">{formatWeight(volume)}</span>
 						</div>
 					{/each}
 				</div>
 
-				<div style="display:flex;justify-content:space-between;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-weight:600;">
-					<span>Total weight lifted</span>
-					<span>{formatWeight(totalVolume)}</span>
+				<div class="total-weight-block">
+					<span class="total-weight-label">Total weight lifted</span>
+					<span class="total-weight-value">{formatWeight(totalVolume)}</span>
 				</div>
 			</section>
 		{:else}
@@ -137,3 +145,139 @@
 		{/if}
 	</div>
 </main>
+
+<style>
+	.workout-card {
+		position: relative;
+		overflow: hidden;
+		background: var(--card-bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		padding: 1.75rem;
+	}
+
+	.workout-card::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 4px;
+		background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+	}
+
+	.workout-card-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.workout-card-eyebrow {
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--text-muted);
+		margin-bottom: 0.25rem;
+	}
+
+	.workout-card-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+	}
+
+	.workout-duration-badge {
+		flex-shrink: 0;
+		font-weight: 600;
+		color: var(--accent);
+		border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+		background: color-mix(in srgb, var(--accent) 12%, transparent);
+	}
+
+	.workout-description {
+		border-left: 3px solid var(--accent);
+		padding-left: 1rem;
+		margin-bottom: 1.5rem;
+		color: var(--text-muted);
+		font-style: italic;
+	}
+
+	.exercise-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.9rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.exercise-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(80px, 30%) auto;
+		align-items: center;
+		gap: 0.85rem;
+	}
+
+	.exercise-name {
+		font-size: 0.92rem;
+		font-weight: 500;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.exercise-bar-track {
+		height: 6px;
+		border-radius: 999px;
+		background: var(--bg-secondary);
+		overflow: hidden;
+	}
+
+	.exercise-bar-fill {
+		height: 100%;
+		border-radius: 999px;
+		background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+		transition: width 0.4s ease;
+	}
+
+	.exercise-volume {
+		font-size: 0.85rem;
+		color: var(--text-muted);
+		white-space: nowrap;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.total-weight-block {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 1rem 1.25rem;
+		border-radius: var(--radius);
+		background: color-mix(in srgb, var(--accent) 10%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+	}
+
+	.total-weight-label {
+		font-size: 0.9rem;
+		font-weight: 600;
+	}
+
+	.total-weight-value {
+		font-size: 1.4rem;
+		font-weight: 800;
+		color: var(--accent);
+		font-variant-numeric: tabular-nums;
+	}
+
+	@media (max-width: 480px) {
+		.exercise-row {
+			grid-template-columns: minmax(0, 1fr) auto;
+		}
+
+		.exercise-bar-track {
+			display: none;
+		}
+	}
+</style>
