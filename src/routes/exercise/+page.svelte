@@ -295,14 +295,23 @@
 		grid-template-columns: minmax(0, 1fr) minmax(80px, 30%) auto auto;
 		align-items: center;
 		gap: 0.85rem;
-		width: 100%;
+		width: calc(100% + 1.2rem);
+		margin: 0 -0.6rem;
 		background: none;
 		border: none;
-		padding: 0;
+		border-radius: var(--radius);
+		padding: 0.45rem 0.6rem;
 		font: inherit;
 		color: inherit;
 		text-align: left;
 		cursor: pointer;
+		transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+	}
+
+	.exercise-row:hover {
+		transform: translateY(-2px);
+		background: var(--bg-secondary);
+		box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 15%, transparent);
 	}
 
 	.exercise-chevron {
@@ -417,10 +426,14 @@
 
 	@media (max-width: 480px) {
 		.exercise-row {
-			grid-template-columns: minmax(0, 1fr) auto auto;
+			grid-template-columns: minmax(0, 1fr) auto;
 		}
 
 		.exercise-bar-track {
+			display: none;
+		}
+
+		.exercise-chevron {
 			display: none;
 		}
 	}
