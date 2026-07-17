@@ -75,6 +75,13 @@
 	const maxExerciseVolume = $derived(
 		workout ? Math.max(0, ...workout.exercises.map((exercise) => exerciseVolume(exercise))) : 0,
 	);
+
+	const latestPrId = $derived.by(() => {
+		if (exercisePrs.length === 0) return null;
+		return exercisePrs.reduce((latest, pr) =>
+			new Date(pr.updatedAt).getTime() > new Date(latest.updatedAt).getTime() ? pr : latest,
+		).id;
+	});
 </script>
 
 <svelte:head><title>Exercise · Kyle Brooks</title></svelte:head>
@@ -153,7 +160,10 @@
 
 			<div class="pr-grid">
 				{#each exercisePrs as pr (pr.id)}
-					<div class="pr-card">
+					<div class="pr-card" class:pr-card-featured={pr.id === latestPrId}>
+						{#if pr.id === latestPrId}
+							<span class="pr-card-badge">★ Latest PR</span>
+						{/if}
 						<p class="pr-card-name">{pr.exerciseName}</p>
 						<p class="pr-card-value">{formatWeight(pr.personalRecord)}</p>
 						<p class="pr-card-reps">× {pr.numberOfReps} reps</p>
@@ -328,6 +338,42 @@
 		transform: translateY(-3px);
 		border-color: var(--accent);
 		box-shadow: 0 8px 28px color-mix(in srgb, var(--accent) 30%, transparent);
+	}
+
+	.pr-card-featured {
+		border-color: var(--accent);
+		background: linear-gradient(
+			160deg,
+			color-mix(in srgb, var(--accent) 20%, var(--card-bg)),
+			var(--card-bg) 65%
+		);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent),
+			0 10px 30px color-mix(in srgb, var(--accent) 28%, transparent);
+		padding-top: 2.5rem;
+	}
+
+	.pr-card-featured:hover {
+		box-shadow: 0 0 0 1px var(--accent), 0 12px 34px color-mix(in srgb, var(--accent) 38%, transparent);
+	}
+
+	.pr-card-featured .pr-card-value {
+		font-size: 2.1rem;
+	}
+
+	.pr-card-badge {
+		position: absolute;
+		top: 0.65rem;
+		left: 50%;
+		transform: translateX(-50%);
+		font-size: 0.62rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 18%, var(--card-bg));
+		border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+		padding: 0.2rem 0.5rem;
+		border-radius: 999px;
 	}
 
 	.pr-card-name {
