@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import type { HevyExercise } from '$lib/types';
+	import type { HevyExercise, HevySet } from '$lib/types';
 
 	let { data }: { data: PageData } = $props();
 	const workout = $derived(data.workout);
@@ -75,6 +75,25 @@
 	const maxExerciseVolume = $derived(
 		workout ? Math.max(0, ...workout.exercises.map((exercise) => exerciseVolume(exercise))) : 0,
 	);
+
+	let expandedExercises = $state<number[]>([]);
+
+	function toggleExercise(index: number) {
+		expandedExercises = expandedExercises.includes(index)
+			? expandedExercises.filter((i) => i !== index)
+			: [...expandedExercises, index];
+	}
+
+	function formatSetType(type: HevySet['type']): string {
+		return type.charAt(0).toUpperCase() + type.slice(1);
+	}
+
+	const latestPrId = $derived.by(() => {
+		if (exercisePrs.length === 0) return null;
+		return exercisePrs.reduce((latest, pr) =>
+			new Date(pr.updatedAt).getTime() > new Date(latest.updatedAt).getTime() ? pr : latest,
+		).id;
+	});
 </script>
 
 <svelte:head><title>Exercise · Kyle Brooks</title></svelte:head>
@@ -105,6 +124,7 @@
 		</section>
 
 		{#if workout}
+			<p class="section-tag">Latest workout</p>
 			<section class="workout-card">
 				<div class="workout-card-header">
 					<div>
@@ -121,15 +141,47 @@
 				<div class="exercise-list">
 					{#each workout.exercises as exercise (exercise.index)}
 						{@const volume = exerciseVolume(exercise)}
-						<div class="exercise-row">
-							<span class="exercise-name">{exercise.title}</span>
-							<div class="exercise-bar-track">
-								<div
-									class="exercise-bar-fill"
-									style="width:{maxExerciseVolume ? (volume / maxExerciseVolume) * 100 : 0}%;"
-								></div>
-							</div>
-							<span class="exercise-volume">{formatWeight(volume)}</span>
+						{@const isExpanded = expandedExercises.includes(exercise.index)}
+						<div class="exercise-item">
+							<button
+								type="button"
+								class="exercise-row"
+								aria-expanded={isExpanded}
+								onclick={() => toggleExercise(exercise.index)}
+							>
+								<span class="exercise-name">{exercise.title}</span>
+								<div class="exercise-bar-track">
+									<div
+										class="exercise-bar-fill"
+										style="width:{maxExerciseVolume ? (volume / maxExerciseVolume) * 100 : 0}%;"
+									></div>
+								</div>
+								<span class="exercise-volume">{formatWeight(volume)}</span>
+								<span class="exercise-chevron" class:expanded={isExpanded} aria-hidden="true">⌄</span>
+							</button>
+
+							{#if isExpanded}
+								<div class="set-table-wrap">
+									<table class="set-table">
+										<thead>
+											<tr>
+												<th>Set type</th>
+												<th>Reps</th>
+												<th>Weight</th>
+											</tr>
+										</thead>
+										<tbody>
+											{#each exercise.sets as set (set.index)}
+												<tr>
+													<td>{formatSetType(set.type)}</td>
+													<td>{set.reps ?? '—'}</td>
+													<td>{set.weight_kg != null ? formatWeight(set.weight_kg) : '—'}</td>
+												</tr>
+											{/each}
+										</tbody>
+									</table>
+								</div>
+							{/if}
 						</div>
 					{/each}
 				</div>
@@ -153,7 +205,10 @@
 
 			<div class="pr-grid">
 				{#each exercisePrs as pr (pr.id)}
-					<div class="pr-card">
+					<div class="pr-card" class:pr-card-featured={pr.id === latestPrId}>
+						{#if pr.id === latestPrId}
+							<span class="pr-card-badge">★ Latest PR</span>
+						{/if}
 						<p class="pr-card-name">{pr.exerciseName}</p>
 						<p class="pr-card-value">{formatWeight(pr.personalRecord)}</p>
 						<p class="pr-card-reps">× {pr.numberOfReps} reps</p>
@@ -230,11 +285,91 @@
 		margin-bottom: 1.5rem;
 	}
 
+	.exercise-item {
+		display: flex;
+		flex-direction: column;
+	}
+
 	.exercise-row {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(80px, 30%) auto;
+		grid-template-columns: minmax(0, 1fr) minmax(80px, 30%) auto auto;
 		align-items: center;
 		gap: 0.85rem;
+		width: calc(100% + 1.2rem);
+		margin: 0 -0.6rem;
+		background: none;
+		border: none;
+		border-radius: var(--radius);
+		padding: 0.45rem 0.6rem;
+		font: inherit;
+		color: inherit;
+		text-align: left;
+		cursor: pointer;
+		transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+	}
+
+	.exercise-row:hover {
+		transform: translateY(-2px);
+		background: var(--bg-secondary);
+		box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 15%, transparent);
+	}
+
+	.exercise-chevron {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 1.4rem;
+		flex-shrink: 0;
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1;
+		padding-bottom: 0.6rem;
+		color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 12%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+		border-radius: 999px;
+		transition: transform 0.2s ease, background 0.2s ease;
+	}
+
+	.exercise-row:hover .exercise-chevron {
+		background: color-mix(in srgb, var(--accent) 20%, transparent);
+	}
+
+	.exercise-chevron.expanded {
+		transform: rotate(180deg);
+	}
+
+	.set-table-wrap {
+		margin-top: 0.6rem;
+		overflow-x: auto;
+	}
+
+	.set-table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.85rem;
+	}
+
+	.set-table th {
+		text-align: left;
+		font-size: 0.7rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--text-muted);
+		padding: 0.4rem 0.6rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.set-table td {
+		padding: 0.45rem 0.6rem;
+		border-bottom: 1px solid var(--border);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.set-table tbody tr:last-child td {
+		border-bottom: none;
 	}
 
 	.exercise-name {
@@ -297,6 +432,10 @@
 		.exercise-bar-track {
 			display: none;
 		}
+
+		.exercise-chevron {
+			display: none;
+		}
 	}
 
 	.pr-grid {
@@ -328,6 +467,42 @@
 		transform: translateY(-3px);
 		border-color: var(--accent);
 		box-shadow: 0 8px 28px color-mix(in srgb, var(--accent) 30%, transparent);
+	}
+
+	.pr-card-featured {
+		border-color: var(--accent);
+		background: linear-gradient(
+			160deg,
+			color-mix(in srgb, var(--accent) 20%, var(--card-bg)),
+			var(--card-bg) 65%
+		);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent),
+			0 10px 30px color-mix(in srgb, var(--accent) 28%, transparent);
+		padding-top: 2.5rem;
+	}
+
+	.pr-card-featured:hover {
+		box-shadow: 0 0 0 1px var(--accent), 0 12px 34px color-mix(in srgb, var(--accent) 38%, transparent);
+	}
+
+	.pr-card-featured .pr-card-value {
+		font-size: 2.1rem;
+	}
+
+	.pr-card-badge {
+		position: absolute;
+		top: 0.65rem;
+		left: 50%;
+		transform: translateX(-50%);
+		font-size: 0.62rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 18%, var(--card-bg));
+		border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+		padding: 0.2rem 0.5rem;
+		border-radius: 999px;
 	}
 
 	.pr-card-name {

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.css';
 	import { page, navigating } from '$app/stores';
-	import MatrixRain from '$lib/MatrixRain.svelte';
 
 	let { children } = $props();
 
@@ -11,7 +10,6 @@
 	let palette = $state('indigo');
 	let menuOpen = $state(false);
 	let paletteMenuOpen = $state(false);
-	let matrixMode = $state(false);
 
 	const palettes = [
 		{ id: 'indigo', label: 'Indigo', color: '#6366f1' },
@@ -28,22 +26,12 @@
 	$effect(() => {
 		theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 		palette = document.documentElement.getAttribute('data-palette') || 'indigo';
-		matrixMode = localStorage.getItem('matrixMode') === 'true';
-	});
-
-	$effect(() => {
-		document.documentElement.classList.toggle('matrix-active', matrixMode);
 	});
 
 	function toggleTheme() {
 		theme = theme === 'light' ? 'dark' : 'light';
 		document.documentElement.setAttribute('data-theme', theme);
 		localStorage.setItem('theme', theme);
-	}
-
-	function toggleMatrixMode() {
-		matrixMode = !matrixMode;
-		localStorage.setItem('matrixMode', String(matrixMode));
 	}
 
 	function setPalette(id: string) {
@@ -84,10 +72,6 @@
 
 {#if $navigating}
 	<div class="loading-bar"></div>
-{/if}
-
-{#if matrixMode}
-	<MatrixRain />
 {/if}
 
 <nav>
@@ -155,22 +139,6 @@
 							>
 								<span class="switch-thumb"></span>
 							</button>
-						</div>
-						<div class="matrix-toggle-wrap">
-							<div class="palette-dropdown-divider"></div>
-							<div class="theme-toggle-row">
-								<span class="theme-toggle-label">Matrix mode</span>
-								<button
-									type="button"
-									class="switch"
-									role="switch"
-									aria-checked={matrixMode}
-									aria-label="Toggle matrix mode"
-									onclick={toggleMatrixMode}
-								>
-									<span class="switch-thumb"></span>
-								</button>
-							</div>
 						</div>
 						<div class="palette-dropdown-divider"></div>
 						<div class="palette-swatch-row" role="radiogroup" aria-label="Color palette">
