@@ -59,10 +59,6 @@ body {
 	transition: background 0.2s, color 0.2s;
 }
 
-html.matrix-active body {
-	background: transparent;
-}
-
 a {
 	color: var(--accent);
 	text-decoration: none;
@@ -256,18 +252,6 @@ nav {
 .palette-dropdown-divider {
 	height: 1px;
 	background: var(--border);
-}
-
-.matrix-toggle-wrap {
-	display: flex;
-	flex-direction: column;
-	gap: 0.6rem;
-}
-
-@media (max-width: 800px) {
-	.matrix-toggle-wrap {
-		display: none;
-	}
 }
 
 .palette-swatch-row {
