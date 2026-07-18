@@ -123,13 +123,39 @@ export async function seedTotalWeightLifted(): Promise<number> {
 
 	await db
 		.insert(workoutStats)
-		.values({ id: 'singleton', totalWeightLifted: total, updatedAt: new Date() })
+		.values({ name: 'total_weight_lifted', value: total, updatedAt: new Date() })
 		.onConflictDoUpdate({
-			target: workoutStats.id,
-			set: { totalWeightLifted: total, updatedAt: new Date() },
+			target: workoutStats.name,
+			set: { value: total, updatedAt: new Date() },
 		});
 
 	return total;
+}
+
+const SKIP_COUNT_STAT_NAME = 'skip_count';
+const SKIP_THRESHOLD_HOURS = 75;
+
+export async function updateSkipCount(workout: HevyWorkout): Promise<void> {
+	const [existing] = await db
+		.select()
+		.from(workoutStats)
+		.where(eq(workoutStats.name, SKIP_COUNT_STAT_NAME))
+		.limit(1);
+
+	if (!existing) return;
+
+	const createdAt = new Date(workout.created_at);
+	const hoursSinceLastUpdate = (createdAt.getTime() - existing.updatedAt.getTime()) / (1000 * 60 * 60);
+	const skipped = hoursSinceLastUpdate > SKIP_THRESHOLD_HOURS;
+
+	await db
+		.update(workoutStats)
+		.set(
+			skipped
+				? { value: sql`${workoutStats.value} + 1`, updatedAt: createdAt }
+				: { updatedAt: createdAt },
+		)
+		.where(eq(workoutStats.name, SKIP_COUNT_STAT_NAME));
 }
 
 export async function updateExercisePrsFromWorkout(workout: HevyWorkout): Promise<void> {
@@ -166,11 +192,11 @@ export async function incrementTotalWeightLifted(workout: HevyWorkout): Promise<
 
 	await db
 		.insert(workoutStats)
-		.values({ id: 'singleton', totalWeightLifted: volume, updatedAt: new Date() })
+		.values({ name: 'total_weight_lifted', value: volume, updatedAt: new Date() })
 		.onConflictDoUpdate({
-			target: workoutStats.id,
+			target: workoutStats.name,
 			set: {
-				totalWeightLifted: sql`${workoutStats.totalWeightLifted} + ${volume}`,
+				value: sql`${workoutStats.value} + ${volume}`,
 				updatedAt: new Date(),
 			},
 		});
