@@ -68,6 +68,13 @@
 		return `${Math.round(kg * KG_TO_LB).toLocaleString()} lbs`;
 	}
 
+	function formatWeightAbbreviated(kg: number): string {
+		const lbs = Math.round(kg * KG_TO_LB);
+		if (lbs >= 1_000_000) return `${(lbs / 1_000_000).toFixed(2)}M lbs`;
+		if (lbs >= 1_000) return `${(lbs / 1_000).toFixed(2)}K lbs`;
+		return `${lbs.toLocaleString()} lbs`;
+	}
+
 	const totalVolume = $derived(
 		workout ? workout.exercises.reduce((sum, exercise) => sum + exerciseVolume(exercise), 0) : 0,
 	);
@@ -106,7 +113,19 @@
 
 		<section style="display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;text-align:center;margin:2rem 0 3rem;">
 			<div>
-				<p class="section-tag">Workouts skipped</p>
+				<p class="section-tag" style="display:inline-flex;align-items:center;gap:0.35rem;">
+					Workouts skipped
+					<button
+						type="button"
+						class="tooltip-trigger"
+						aria-label="Approximate number of skipped workouts since January 1st, 2025"
+					>
+						<span class="tooltip-icon" aria-hidden="true">?</span>
+						<span class="tooltip-bubble" role="tooltip">
+							Approximate number of skipped workouts since January 1st, 2025
+						</span>
+					</button>
+				</p>
 				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{skippedCount}</p>
 			</div>
 			<div>
@@ -119,7 +138,15 @@
 			</div>
 			<div>
 				<p class="section-tag">Total weight lifted</p>
-				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{formatWeight(totalWeightLifted)}</p>
+				<button
+					type="button"
+					class="tooltip-trigger"
+					style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;"
+					aria-label="Exact total: {formatWeight(totalWeightLifted)}"
+				>
+					{formatWeightAbbreviated(totalWeightLifted)}
+					<span class="tooltip-bubble" role="tooltip">{formatWeight(totalWeightLifted)}</span>
+				</button>
 			</div>
 		</section>
 
@@ -530,5 +557,61 @@
 		font-size: 0.8rem;
 		color: var(--text-muted);
 		margin-top: 0.25rem;
+	}
+
+	.tooltip-trigger {
+		position: relative;
+		display: inline-flex;
+		background: none;
+		border: none;
+		padding: 0;
+		font: inherit;
+		color: inherit;
+		cursor: help;
+	}
+
+	.tooltip-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		border: 1px solid var(--text-muted);
+		color: var(--text-muted);
+		font-size: 0.65rem;
+		font-weight: 700;
+		line-height: 1;
+	}
+
+	.tooltip-bubble {
+		position: absolute;
+		bottom: calc(100% + 8px);
+		left: 50%;
+		transform: translateX(-50%) translateY(4px);
+		width: max-content;
+		max-width: 220px;
+		padding: 0.5rem 0.7rem;
+		border-radius: var(--radius);
+		background: var(--card-bg);
+		border: 1px solid var(--border);
+		color: var(--text);
+		font-size: 0.75rem;
+		font-weight: 400;
+		text-transform: none;
+		letter-spacing: normal;
+		box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+		transition: opacity 0.15s ease, transform 0.15s ease;
+		z-index: 10;
+	}
+
+	.tooltip-trigger:hover .tooltip-bubble,
+	.tooltip-trigger:focus-visible .tooltip-bubble {
+		opacity: 1;
+		visibility: visible;
+		transform: translateX(-50%) translateY(0);
 	}
 </style>
