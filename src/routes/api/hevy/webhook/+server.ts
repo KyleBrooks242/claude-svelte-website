@@ -4,6 +4,7 @@ import {
 	fetchHevyWorkout,
 	incrementTotalWeightLifted,
 	updateExercisePrsFromWorkout,
+	updateSkipCount,
 	upsertHevyWorkout,
 } from '$lib/hevy';
 import type { HevyWorkout } from '$lib/types';
@@ -61,6 +62,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		await updateExercisePrsFromWorkout(workout);
 		await incrementTotalWeightLifted(workout);
+		await updateSkipCount(workout);
 	} catch (err) {
 		console.error('[hevy webhook] stats update failed for workout', workoutId, err);
 	}

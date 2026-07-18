@@ -27,15 +27,14 @@ export const load: PageServerLoad = async () => {
 		}
 	}
 
-	// TODO: derive this from actual workout history/frequency instead of a stub.
-	const skippedCount = 0;
-
-	const [prRows, [stats]] = await Promise.all([
+	const [prRows, [weightStats], [skipStats]] = await Promise.all([
 		db.select().from(exercisePrs).orderBy(exercisePrs.exerciseName),
-		db.select().from(workoutStats).where(eq(workoutStats.id, 'singleton')).limit(1),
+		db.select().from(workoutStats).where(eq(workoutStats.name, 'total_weight_lifted')).limit(1),
+		db.select().from(workoutStats).where(eq(workoutStats.name, 'skip_count')).limit(1),
 	]);
 
-	const totalWeightLifted = stats?.totalWeightLifted ?? 0;
+	const totalWeightLifted = weightStats?.value ?? 0;
+	const skippedCount = skipStats?.value ?? 0;
 
 	if (!row) {
 		return { workout: null, skippedCount, totalWeightLifted, exercisePrs: prRows };

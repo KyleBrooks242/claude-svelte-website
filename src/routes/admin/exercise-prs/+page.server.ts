@@ -8,12 +8,12 @@ import type { Actions, PageServerLoad } from './$types';
 export const load: PageServerLoad = async () => {
 	const [rows, [stats]] = await Promise.all([
 		db.select().from(exercisePrs).orderBy(exercisePrs.exerciseName),
-		db.select().from(workoutStats).where(eq(workoutStats.id, 'singleton')).limit(1),
+		db.select().from(workoutStats).where(eq(workoutStats.name, 'total_weight_lifted')).limit(1),
 	]);
 
 	return {
 		exercisePrs: rows.map((r) => ({ ...r, updatedAt: r.updatedAt.toISOString() })),
-		totalWeightLifted: stats?.totalWeightLifted ?? 0,
+		totalWeightLifted: stats?.value ?? 0,
 	};
 };
 

@@ -83,8 +83,8 @@ export type ExercisePr = typeof exercisePrs.$inferSelect;
 export type NewExercisePr = typeof exercisePrs.$inferInsert;
 
 export const workoutStats = pgTable('workout_stats', {
-	id: text('id').primaryKey().default('singleton'),
-	totalWeightLifted: real('total_weight_lifted').notNull().default(0),
+	name: text('name').primaryKey(),
+	value: real('value').notNull().default(0),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
