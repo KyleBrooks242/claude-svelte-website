@@ -171,11 +171,11 @@ export async function updateExercisePrsFromWorkout(workout: HevyWorkout): Promis
 		const volume = exerciseVolume(exercise);
 		const maxWeight = exercise.sets.reduce((max, set) => Math.max(max, set.weight_kg ?? 0), 0);
 		const isNewRecord = maxWeight > existing.personalRecord;
-		const maxWeightSet = isNewRecord
-			? exercise.sets.find((set) => (set.weight_kg ?? 0) === maxWeight)
-			: undefined;
 
-		await db
+		if (isNewRecord) {
+			const maxWeightSet = exercise.sets.find((set) => (set.weight_kg ?? 0) === maxWeight)
+
+			await db
 			.update(exercisePrs)
 			.set({
 				totalWeightLifted: existing.totalWeightLifted + volume,
@@ -184,6 +184,7 @@ export async function updateExercisePrsFromWorkout(workout: HevyWorkout): Promis
 				updatedAt: new Date(),
 			})
 			.where(eq(exercisePrs.exerciseTemplateId, exercise.exercise_template_id));
+		}
 	}
 }
 
