@@ -5,8 +5,11 @@
 	let { data }: { data: PageData } = $props();
 	const exercisePrs = $derived(data.exercisePrs);
 	const totalWeightLifted = $derived(data.totalWeightLifted);
+	const skipCount = $derived(data.skipCount);
 	let pendingId = $state<string | null>(null);
 	let recalculating = $state(false);
+	let recalculatingSkips = $state(false);
+	let backfilling = $state(false);
 
 	const KG_TO_LB = 2.20462;
 	function formatWeight(kg: number): string {
@@ -52,6 +55,45 @@
 					{recalculating ? 'Recalculating…' : 'Recalculate from full history'}
 				</button>
 			</form>
+		</div>
+
+		<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2.5rem;">
+			<div>
+				<h2 style="font-size:1.25rem;">Workouts skipped</h2>
+				<p style="font-size:1.5rem;font-weight:700;color:var(--accent);">{skipCount}</p>
+			</div>
+			<div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+				<form
+					method="POST"
+					action="?/recalcSkipCount"
+					use:enhance={() => {
+						recalculatingSkips = true;
+						return async ({ update }) => {
+							await update();
+							recalculatingSkips = false;
+						};
+					}}
+				>
+					<button type="submit" class="btn btn-outline" disabled={recalculatingSkips || backfilling}>
+						{recalculatingSkips ? 'Recalculating…' : 'Recalculate from synced history'}
+					</button>
+				</form>
+				<form
+					method="POST"
+					action="?/backfillWorkouts"
+					use:enhance={() => {
+						backfilling = true;
+						return async ({ update }) => {
+							await update();
+							backfilling = false;
+						};
+					}}
+				>
+					<button type="submit" class="btn btn-outline" disabled={backfilling || recalculatingSkips}>
+						{backfilling ? 'Backfilling…' : 'Backfill full workout history'}
+					</button>
+				</form>
+			</div>
 		</div>
 
 		<div class="card" style="margin-bottom:2.5rem;">

@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, real, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, integer, jsonb, pgTable, real, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import type { HevyExercise } from './types';
 
 export const posts = pgTable('posts', {
@@ -45,9 +45,9 @@ export type ProjectImage = typeof projectImages.$inferSelect;
 
 export const messages = pgTable('messages', {
 	id: uuid('id').primaryKey().defaultRandom(),
-	name: text('name').notNull(),
-	email: text('email').notNull(),
-	body: text('body').notNull(),
+	name: varchar('name', { length: 50 }).notNull(),
+	email: varchar('email', { length: 50 }).notNull(),
+	body: varchar('body', { length: 500 }).notNull(),
 	ip: text('ip').notNull(),
 	read: boolean('read').notNull().default(false),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

@@ -1,6 +1,6 @@
 import { db } from '$lib/db';
 import { exercisePrs, hevyWorkouts, workoutStats } from '$lib/schema';
-import { fetchLatestHevyWorkout, upsertHevyWorkout } from '$lib/hevy';
+import { fetchLatestHevyWorkout, SKIP_COUNT_STAT_NAME, upsertHevyWorkout } from '$lib/hevy';
 import { desc, eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
@@ -30,7 +30,7 @@ export const load: PageServerLoad = async () => {
 	const [prRows, [weightStats], [skipStats]] = await Promise.all([
 		db.select().from(exercisePrs).orderBy(exercisePrs.exerciseName),
 		db.select().from(workoutStats).where(eq(workoutStats.name, 'total_weight_lifted')).limit(1),
-		db.select().from(workoutStats).where(eq(workoutStats.name, 'skip_count')).limit(1),
+		db.select().from(workoutStats).where(eq(workoutStats.name, SKIP_COUNT_STAT_NAME)).limit(1),
 	]);
 
 	const totalWeightLifted = weightStats?.value ?? 0;
