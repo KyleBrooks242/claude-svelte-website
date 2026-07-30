@@ -1,19 +1,27 @@
 import { db } from '$lib/db';
 import { exercisePrs, workoutStats } from '$lib/schema';
-import { seedTotalWeightLifted, upsertExercisePr } from '$lib/hevy';
+import {
+	backfillHevyWorkoutHistory,
+	recomputeSkipCountFromDb,
+	seedTotalWeightLifted,
+	SKIP_COUNT_STAT_NAME,
+	upsertExercisePr,
+} from '$lib/hevy';
 import { eq } from 'drizzle-orm';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const [rows, [stats]] = await Promise.all([
+	const [rows, [weightStats], [skipStats]] = await Promise.all([
 		db.select().from(exercisePrs).orderBy(exercisePrs.exerciseName),
 		db.select().from(workoutStats).where(eq(workoutStats.name, 'total_weight_lifted')).limit(1),
+		db.select().from(workoutStats).where(eq(workoutStats.name, SKIP_COUNT_STAT_NAME)).limit(1),
 	]);
 
 	return {
 		exercisePrs: rows.map((r) => ({ ...r, updatedAt: r.updatedAt.toISOString() })),
-		totalWeightLifted: stats?.value ?? 0,
+		totalWeightLifted: weightStats?.value ?? 0,
+		skipCount: skipStats?.value ?? 0,
 	};
 };
 
@@ -40,6 +48,29 @@ export const actions: Actions = {
 		} catch (err) {
 			console.error('[admin exercise-prs] failed to recalculate total weight lifted', err);
 			return fail(500, { message: 'Failed to recalculate total weight lifted' });
+		}
+
+		redirect(303, '/admin/exercise-prs');
+	},
+
+	recalcSkipCount: async () => {
+		try {
+			await recomputeSkipCountFromDb();
+		} catch (err) {
+			console.error('[admin exercise-prs] failed to recalculate skip count', err);
+			return fail(500, { message: 'Failed to recalculate skip count' });
+		}
+
+		redirect(303, '/admin/exercise-prs');
+	},
+
+	backfillWorkouts: async () => {
+		try {
+			await backfillHevyWorkoutHistory();
+			await recomputeSkipCountFromDb();
+		} catch (err) {
+			console.error('[admin exercise-prs] failed to backfill workout history', err);
+			return fail(500, { message: 'Failed to backfill workout history' });
 		}
 
 		redirect(303, '/admin/exercise-prs');

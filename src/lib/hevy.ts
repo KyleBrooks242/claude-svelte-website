@@ -1,6 +1,6 @@
 import { HEVY_API_KEY } from '$env/static/private';
 import { db } from './db';
-import { eq, sql } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import { exercisePrs, hevyWorkouts, workoutStats } from './schema';
 import type { HevyExercise, HevyExerciseHistoryEntry, HevyWorkout } from './types';
 
@@ -132,30 +132,89 @@ export async function seedTotalWeightLifted(): Promise<number> {
 	return total;
 }
 
-const SKIP_COUNT_STAT_NAME = 'skip_count';
-const SKIP_THRESHOLD_HOURS = 75;
+export const SKIP_COUNT_STAT_NAME = 'skip_count';
 
-export async function updateSkipCount(workout: HevyWorkout): Promise<void> {
-	const [existing] = await db
-		.select()
-		.from(workoutStats)
-		.where(eq(workoutStats.name, SKIP_COUNT_STAT_NAME))
-		.limit(1);
+const BUCKET_DAYS = 7;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+// How many trailing weekly buckets to use when estimating the user's normal
+// weekly workout count.
+const BASELINE_WEEKS = 6;
+// Minimum number of trailing buckets needed before a week is judged against
+// a baseline at all (avoids penalizing the first few weeks of history).
+const MIN_BASELINE_WEEKS = 3;
 
-	if (!existing) return;
+function median(values: number[]): number {
+	const sorted = [...values].sort((a, b) => a - b);
+	const mid = Math.floor(sorted.length / 2);
+	return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+}
 
-	const createdAt = new Date(workout.created_at);
-	const hoursSinceLastUpdate = (createdAt.getTime() - existing.updatedAt.getTime()) / (1000 * 60 * 60);
-	const skipped = hoursSinceLastUpdate > SKIP_THRESHOLD_HOURS;
+/**
+ * Derives a skip count from workout start times by counting workouts into
+ * rolling BUCKET_DAYS-wide buckets (anchored to the first workout) and
+ * comparing each bucket's count against the median of the trailing
+ * BASELINE_WEEKS buckets. Comparing weekly *counts* rather than individual
+ * gap lengths avoids false positives from a recurring rest day (e.g. a
+ * 5x/week schedule's weekly rest is just part of a normal week's count, not
+ * an outlier gap to reason about in isolation), stays accurate when a
+ * workout shifts a day within its week, and adapts automatically if the
+ * user's routine moves from 3x/week to 5x/week or vice versa.
+ */
+export function computeSkipCount(startTimes: Date[]): number {
+	if (startTimes.length === 0) return 0;
+
+	const sorted = [...startTimes].sort((a, b) => a.getTime() - b.getTime());
+	const first = sorted[0].getTime();
+	const lastBucket = Math.floor((sorted[sorted.length - 1].getTime() - first) / (BUCKET_DAYS * MS_PER_DAY));
+
+	const counts: number[] = new Array(lastBucket + 1).fill(0);
+	for (const startTime of sorted) {
+		counts[Math.floor((startTime.getTime() - first) / (BUCKET_DAYS * MS_PER_DAY))]++;
+	}
+
+	let skipCount = 0;
+	for (let i = 0; i <= lastBucket; i++) {
+		const baseline = counts.slice(Math.max(0, i - BASELINE_WEEKS), i);
+		if (baseline.length < MIN_BASELINE_WEEKS) continue;
+
+		const expected = Math.round(median(baseline));
+		skipCount += Math.max(0, expected - counts[i]);
+	}
+
+	return skipCount;
+}
+
+/**
+ * Recomputes skip_count from the local hevy_workouts table (no external API
+ * calls) and stores the result. Cheap enough to run on every webhook hit.
+ * Relies on hevy_workouts already having full history — see
+ * backfillHevyWorkoutHistory for seeding that.
+ */
+export async function recomputeSkipCountFromDb(): Promise<number> {
+	const rows = await db.select({ startTime: hevyWorkouts.startTime }).from(hevyWorkouts).orderBy(asc(hevyWorkouts.startTime));
+
+	const value = computeSkipCount(rows.map((r) => r.startTime));
 
 	await db
-		.update(workoutStats)
-		.set(
-			skipped
-				? { value: sql`${workoutStats.value} + 1`, updatedAt: createdAt }
-				: { updatedAt: createdAt },
-		)
-		.where(eq(workoutStats.name, SKIP_COUNT_STAT_NAME));
+		.insert(workoutStats)
+		.values({ name: SKIP_COUNT_STAT_NAME, value, updatedAt: new Date() })
+		.onConflictDoUpdate({
+			target: workoutStats.name,
+			set: { value, updatedAt: new Date() },
+		});
+
+	return value;
+}
+
+/**
+ * Fully syncs hevy_workouts from the Hevy API. Expensive (paginated external
+ * requests) — for manual/admin use only, never on the webhook hot path.
+ */
+export async function backfillHevyWorkoutHistory(): Promise<void> {
+	const workouts = await fetchAllHevyWorkouts();
+	for (const workout of workouts) {
+		await upsertHevyWorkout(workout);
+	}
 }
 
 export async function updateExercisePrsFromWorkout(workout: HevyWorkout): Promise<void> {
