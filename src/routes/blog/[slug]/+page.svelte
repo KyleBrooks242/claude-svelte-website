@@ -46,9 +46,9 @@
 	:global(.prose code) {
 		background: var(--bg-secondary);
 		padding: 0.1em 0.4em;
-		border-radius: 4px;
+		border-radius: var(--radius);
 		font-size: 0.88em;
-		font-family: 'Fira Code', 'Cascadia Code', monospace;
+		font-family: var(--font-mono);
 	}
 	:global(.prose pre) {
 		background: var(--bg-secondary);

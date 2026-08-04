@@ -22,10 +22,10 @@
 
 	const HOUR = 60 * 60 * 1000;
 	const statusColor = $derived.by(() => {
-		if (!workout) return '#9ca3af';
-		if (elapsedMs < 48 * HOUR) return '#22c55e';
-		if (elapsedMs < 72 * HOUR) return '#f59e0b';
-		return '#ef4444';
+		if (!workout) return 'var(--status-neutral)';
+		if (elapsedMs < 48 * HOUR) return 'var(--status-good)';
+		if (elapsedMs < 72 * HOUR) return 'var(--status-warn)';
+		return 'var(--status-bad)';
 	});
 	const statusLabel = $derived.by(() => {
 		if (!workout) return '';
@@ -126,14 +126,14 @@
 						</span>
 					</button>
 				</p>
-				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;">{skippedCount}</p>
+				<p style="font-family:var(--font-mono);font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:600;">{skippedCount}</p>
 			</div>
 			<div>
 				<p class="section-tag">Time since last workout</p>
-				<p style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;color:{statusColor};">{elapsed}</p>
+				<p style="font-family:var(--font-mono);font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:600;color:{statusColor};">{elapsed}</p>
 				<span
 					class="badge"
-					style="color:{statusColor};border-color:{statusColor}33;background:{statusColor}11;"
+					style="color:{statusColor};border-color:color-mix(in srgb, {statusColor} 35%, transparent);background:color-mix(in srgb, {statusColor} 12%, transparent);"
 				>{statusLabel}</span>
 			</div>
 			<div>
@@ -141,7 +141,7 @@
 				<button
 					type="button"
 					class="tooltip-trigger"
-					style="font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:700;"
+					style="font-family:var(--font-mono);font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:600;"
 					aria-label="Exact total: {formatWeight(totalWeightLifted)}"
 				>
 					{formatWeightAbbreviated(totalWeightLifted)}
@@ -422,7 +422,8 @@
 	}
 
 	.exercise-volume {
-		font-size: 0.85rem;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
 		color: var(--text-muted);
 		white-space: nowrap;
 		font-variant-numeric: tabular-nums;
@@ -445,8 +446,9 @@
 	}
 
 	.total-weight-value {
-		font-size: 1.4rem;
-		font-weight: 800;
+		font-family: var(--font-mono);
+		font-size: 1.3rem;
+		font-weight: 600;
 		color: var(--accent);
 		font-variant-numeric: tabular-nums;
 	}
@@ -545,8 +547,9 @@
 
 	.pr-card-value {
 		position: relative;
-		font-size: 1.9rem;
-		font-weight: 800;
+		font-family: var(--font-mono);
+		font-size: 1.7rem;
+		font-weight: 600;
 		color: var(--accent);
 		font-variant-numeric: tabular-nums;
 		line-height: 1.1;
