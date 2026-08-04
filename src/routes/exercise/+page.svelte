@@ -547,9 +547,8 @@
 
 	.pr-card-value {
 		position: relative;
-		font-family: var(--font-mono);
-		font-size: 1.7rem;
-		font-weight: 600;
+		font-size: 1.9rem;
+		font-weight: 800;
 		color: var(--accent);
 		font-variant-numeric: tabular-nums;
 		line-height: 1.1;
