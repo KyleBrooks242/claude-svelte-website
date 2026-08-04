@@ -62,6 +62,25 @@
 		return exercise.sets.reduce((sum, set) => sum + (set.weight_kg ?? 0) * (set.reps ?? 0), 0);
 	}
 
+	function isCardioExercise(exercise: HevyExercise): boolean {
+		return exercise.sets.some((set) => set.duration_seconds != null);
+	}
+
+	function exerciseDurationSeconds(exercise: HevyExercise): number {
+		return exercise.sets.reduce((sum, set) => sum + (set.duration_seconds ?? 0), 0);
+	}
+
+	function formatSetDuration(totalSeconds: number): string {
+		const seconds = Math.round(totalSeconds);
+		const hours = Math.floor(seconds / 3600);
+		const minutes = Math.floor((seconds % 3600) / 60);
+		const secs = seconds % 60;
+		if (hours > 0) {
+			return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+		}
+		return `${minutes}:${String(secs).padStart(2, '0')}`;
+	}
+
 	const KG_TO_LB = 2.20462;
 
 	function formatWeight(kg: number): string {
@@ -81,6 +100,12 @@
 
 	const maxExerciseVolume = $derived(
 		workout ? Math.max(0, ...workout.exercises.map((exercise) => exerciseVolume(exercise))) : 0,
+	);
+
+	const maxCardioDurationSeconds = $derived(
+		workout
+			? Math.max(0, ...workout.exercises.filter(isCardioExercise).map(exerciseDurationSeconds))
+			: 0,
 	);
 
 	let expandedExercises = $state<number[]>([]);
@@ -167,7 +192,9 @@
 
 				<div class="exercise-list">
 					{#each workout.exercises as exercise (exercise.index)}
+						{@const cardio = isCardioExercise(exercise)}
 						{@const volume = exerciseVolume(exercise)}
+						{@const cardioDuration = cardio ? exerciseDurationSeconds(exercise) : 0}
 						{@const isExpanded = expandedExercises.includes(exercise.index)}
 						<div class="exercise-item">
 							<button
@@ -180,10 +207,18 @@
 								<div class="exercise-bar-track">
 									<div
 										class="exercise-bar-fill"
-										style="width:{maxExerciseVolume ? (volume / maxExerciseVolume) * 100 : 0}%;"
+										style="width:{cardio
+											? maxCardioDurationSeconds
+												? (cardioDuration / maxCardioDurationSeconds) * 100
+												: 0
+											: maxExerciseVolume
+												? (volume / maxExerciseVolume) * 100
+												: 0}%;"
 									></div>
 								</div>
-								<span class="exercise-volume">{formatWeight(volume)}</span>
+								<span class="exercise-volume"
+									>{cardio ? formatSetDuration(cardioDuration) : formatWeight(volume)}</span
+								>
 								<span class="exercise-chevron" class:expanded={isExpanded} aria-hidden="true">⌄</span>
 							</button>
 
@@ -193,16 +228,24 @@
 										<thead>
 											<tr>
 												<th>Set type</th>
-												<th>Reps</th>
-												<th>Weight</th>
+												{#if cardio}
+													<th>Duration</th>
+												{:else}
+													<th>Reps</th>
+													<th>Weight</th>
+												{/if}
 											</tr>
 										</thead>
 										<tbody>
 											{#each exercise.sets as set (set.index)}
 												<tr>
 													<td>{formatSetType(set.type)}</td>
-													<td>{set.reps ?? '—'}</td>
-													<td>{set.weight_kg != null ? formatWeight(set.weight_kg) : '—'}</td>
+													{#if cardio}
+														<td>{set.duration_seconds != null ? formatSetDuration(set.duration_seconds) : '—'}</td>
+													{:else}
+														<td>{set.reps ?? '—'}</td>
+														<td>{set.weight_kg != null ? formatWeight(set.weight_kg) : '—'}</td>
+													{/if}
 												</tr>
 											{/each}
 										</tbody>
