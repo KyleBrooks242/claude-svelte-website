@@ -98,6 +98,10 @@
 		workout ? workout.exercises.reduce((sum, exercise) => sum + exerciseVolume(exercise), 0) : 0,
 	);
 
+	const totalCardioSeconds = $derived(
+		workout ? workout.exercises.reduce((sum, exercise) => sum + exerciseDurationSeconds(exercise), 0) : 0,
+	);
+
 	const maxExerciseVolume = $derived(
 		workout ? Math.max(0, ...workout.exercises.map((exercise) => exerciseVolume(exercise))) : 0,
 	);
@@ -256,10 +260,17 @@
 					{/each}
 				</div>
 
-				<div class="total-weight-block">
-					<span class="total-weight-label">Total weight lifted</span>
-					<span class="total-weight-value">{formatWeight(totalVolume)}</span>
-				</div>
+				{#if totalVolume > 0}
+					<div class="total-weight-block">
+						<span class="total-weight-label">Total weight lifted</span>
+						<span class="total-weight-value">{formatWeight(totalVolume)}</span>
+					</div>
+				{:else if totalCardioSeconds > 0}
+					<div class="total-weight-block">
+						<span class="total-weight-label">Total cardio time</span>
+						<span class="total-weight-value">{formatSetDuration(totalCardioSeconds)}</span>
+					</div>
+				{/if}
 			</section>
 		{:else}
 			<div class="card" style="text-align:center;padding:3rem 1.5rem;">
