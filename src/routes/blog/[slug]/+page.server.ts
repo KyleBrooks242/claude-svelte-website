@@ -4,7 +4,10 @@ import { posts } from '$lib/schema';
 import { renderMarkdown } from '$lib/markdown';
 import { readingTime } from '$lib/types';
 import { eq, and } from 'drizzle-orm';
+import { isrConfig } from '$lib/cache';
 import type { PageServerLoad } from './$types';
+
+export const config = isrConfig;
 
 export const load: PageServerLoad = async ({ params }) => {
 	const [post] = await db

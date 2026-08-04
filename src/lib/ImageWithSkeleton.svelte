@@ -1,8 +1,12 @@
 <script lang="ts">
-	let { src, alt }: { src: string; alt: string } = $props();
+	import { optimizedImageUrl } from './images';
+
+	let { src, alt, width = 800 }: { src: string; alt: string; width?: number } = $props();
 
 	let loaded = $state(false);
 	let imgEl: HTMLImageElement | undefined = $state();
+
+	const optimizedSrc = $derived(optimizedImageUrl(src, width));
 
 	$effect(() => {
 		if (imgEl?.complete) loaded = true;
@@ -15,8 +19,10 @@
 	{/if}
 	<img
 		bind:this={imgEl}
-		{src}
+		src={optimizedSrc}
 		{alt}
+		loading="lazy"
+		decoding="async"
 		class="img-skeleton-img"
 		class:loaded
 		onload={() => (loaded = true)}

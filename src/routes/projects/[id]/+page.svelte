@@ -99,7 +99,7 @@
 					{#each images as image (image.id)}
 						<figure class="photo-item">
 							<a href={image.url} target="_blank" rel="noopener noreferrer" class="photo-tile">
-								<ImageWithSkeleton src={image.url} alt={image.caption || project.title} />
+								<ImageWithSkeleton src={image.url} alt={image.caption || project.title} width={500} />
 							</a>
 							{#if image.caption}
 								<figcaption class="photo-caption">{image.caption}</figcaption>
@@ -116,7 +116,7 @@
 							rel="noopener noreferrer"
 							class="carousel-tile"
 						>
-							<ImageWithSkeleton src={images[activeSlide].url} alt={images[activeSlide].caption || project.title} />
+							<ImageWithSkeleton src={images[activeSlide].url} alt={images[activeSlide].caption || project.title} width={1200} />
 						</a>
 
 						{#if images.length > 1}

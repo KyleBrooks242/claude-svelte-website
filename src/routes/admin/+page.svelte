@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { PageData } from './$types';
+	import type { ActionData, PageData } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const posts = $derived(data.posts);
 	let pendingId = $state<string | null>(null);
+	let cachePending = $state(false);
 
 	function formatDate(iso: string | null) {
 		if (!iso) return '—';
@@ -17,7 +18,30 @@
 <main class="page">
 	<div class="container">
 		<div style="margin-bottom:2.5rem;">
-			<p class="section-tag">Admin</p>
+			<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+				<p class="section-tag">Admin</p>
+
+				<div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;">
+					<form
+						method="POST"
+						action="/admin?/revalidateCache"
+						use:enhance={() => {
+							cachePending = true;
+							return async ({ update }) => { await update(); cachePending = false; };
+						}}
+					>
+						<button type="submit" class="btn btn-outline" style="font-size:0.8rem;padding:0.35rem 0.8rem;" disabled={cachePending}>
+							{cachePending ? 'Clearing…' : 'Clear cache'}
+						</button>
+					</form>
+					{#if form?.cacheSuccess}
+						<p style="font-size:0.75rem;color:#22c55e;margin:0;">Cleared cache for {form.revalidatedCount} pages.</p>
+					{:else if form?.cacheMessage}
+						<p style="font-size:0.75rem;color:#ef4444;margin:0;">{form.cacheMessage}</p>
+					{/if}
+				</div>
+			</div>
+
 			<div style="display:flex;gap:0.5rem;margin-top:0.75rem;border-bottom:1px solid var(--border);padding-bottom:0;">
 				<a href="/admin" style="padding:0.4rem 1rem;font-size:0.9rem;font-weight:600;border-bottom:2px solid var(--accent);color:var(--accent);text-decoration:none;">Blog Posts</a>
 				<a href="/admin/projects" style="padding:0.4rem 1rem;font-size:0.9rem;font-weight:600;border-bottom:2px solid transparent;color:var(--text-muted);text-decoration:none;">Projects</a>

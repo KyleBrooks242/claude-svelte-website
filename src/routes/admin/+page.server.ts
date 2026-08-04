@@ -2,6 +2,7 @@ import { db } from '$lib/db';
 import { posts } from '$lib/schema';
 import { eq } from 'drizzle-orm';
 import { fail, redirect } from '@sveltejs/kit';
+import { revalidateCachedPages } from '$lib/cache';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
@@ -60,5 +61,18 @@ export const actions: Actions = {
 
 		await db.delete(posts).where(eq(posts.id, id));
 		redirect(303, '/admin');
+	},
+
+	revalidateCache: async ({ fetch, url }) => {
+		const results = await revalidateCachedPages(url.origin, fetch);
+		const failed = results.filter((r) => !r.ok);
+
+		if (failed.length > 0) {
+			return fail(500, {
+				cacheMessage: `Failed to revalidate: ${failed.map((f) => f.path).join(', ')}`,
+			});
+		}
+
+		return { cacheSuccess: true, revalidatedCount: results.length };
 	},
 };
