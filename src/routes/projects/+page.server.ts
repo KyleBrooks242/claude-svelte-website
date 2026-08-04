@@ -1,15 +1,22 @@
 import { db } from '$lib/db';
 import { projectImages, projects } from '$lib/schema';
 import { desc, eq } from 'drizzle-orm';
+import { ISR_BYPASS_TOKEN } from '$env/static/private';
+import type { Config } from '@sveltejs/adapter-vercel';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
-	const rows = await db.select().from(projects).orderBy(desc(projects.createdAt));
+export const config: Config = {
+	isr: { expiration: 3600, bypassToken: ISR_BYPASS_TOKEN },
+};
 
-	const covers = await db
-		.select({ projectId: projectImages.projectId, url: projectImages.url })
-		.from(projectImages)
-		.where(eq(projectImages.position, 0));
+export const load: PageServerLoad = async () => {
+	const [rows, covers] = await Promise.all([
+		db.select().from(projects).orderBy(desc(projects.createdAt)),
+		db
+			.select({ projectId: projectImages.projectId, url: projectImages.url })
+			.from(projectImages)
+			.where(eq(projectImages.position, 0)),
+	]);
 
 	const coverMap = new Map(covers.map((c) => [c.projectId, c.url]));
 
