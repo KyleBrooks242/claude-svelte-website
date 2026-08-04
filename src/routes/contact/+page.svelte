@@ -56,7 +56,7 @@
 					</div>
 
 					{#if form?.message}
-						<p style="color:#ef4444;margin-bottom:1rem;font-size:0.9rem;">{form.message}</p>
+						<p style="color:var(--status-bad);margin-bottom:1rem;font-size:0.9rem;">{form.message}</p>
 					{/if}
 
 					<div class="form-group">

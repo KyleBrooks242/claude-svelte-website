@@ -10,10 +10,10 @@
 	const woodworkingProjects = $derived(data.projects.filter((p) => p.kind === 'woodworking'));
 
 	const statusColor: Record<string, string> = {
-		live: '#22c55e',
-		complete: '#22c55e',
-		wip: '#f59e0b',
-		archived: '#9ca3af',
+		live: 'var(--status-good)',
+		complete: 'var(--status-good)',
+		wip: 'var(--status-warn)',
+		archived: 'var(--status-neutral)',
 	};
 
 </script>
@@ -33,7 +33,7 @@
 					<h3 style="font-size: 1rem;">{project.title}</h3>
 					<span
 						class="badge"
-						style="color:{statusColor[project.status]};border-color:{statusColor[project.status]}22;background:{statusColor[project.status]}11;flex-shrink:0;"
+						style="color:{statusColor[project.status]};border-color:color-mix(in srgb, {statusColor[project.status]} 35%, transparent);background:color-mix(in srgb, {statusColor[project.status]} 12%, transparent);flex-shrink:0;"
 					>
 						{project.status}
 					</span>
@@ -61,7 +61,7 @@
 		<p class="section-tag">Portfolio</p>
 		<h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Projects</h1>
 		<p style="color: var(--text-muted); margin-bottom: 3.5rem;">
-			Things I've built — in the office and in the shop.
+			A few projects from the office and the workshop
 		</p>
 
 		<!-- Software -->

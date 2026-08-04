@@ -334,8 +334,9 @@
 		background: var(--card-bg);
 	}
 	.stat-number {
-		font-size: clamp(1.75rem, 4vw, 2.4rem);
-		font-weight: 800;
+		font-family: var(--font-mono);
+		font-size: clamp(1.6rem, 4vw, 2.2rem);
+		font-weight: 600;
 		color: var(--accent);
 		font-variant-numeric: tabular-nums;
 	}
@@ -380,8 +381,9 @@
 
 	.job-index {
 		display: block;
-		font-size: 2.75rem;
-		font-weight: 800;
+		font-family: var(--font-mono);
+		font-size: 2.25rem;
+		font-weight: 600;
 		color: var(--border);
 		line-height: 1;
 		margin-bottom: 0.75rem;
@@ -399,7 +401,8 @@
 		margin-bottom: 0.35rem;
 	}
 	.job-meta {
-		font-size: 0.85rem;
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
 		color: var(--text-muted);
 	}
 

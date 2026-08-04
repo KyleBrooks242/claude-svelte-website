@@ -8,10 +8,10 @@
 	const descriptionHtml = $derived(data.descriptionHtml);
 
 	const statusColor: Record<string, string> = {
-		live: '#22c55e',
-		complete: '#22c55e',
-		wip: '#f59e0b',
-		archived: '#9ca3af',
+		live: 'var(--status-good)',
+		complete: 'var(--status-good)',
+		wip: 'var(--status-warn)',
+		archived: 'var(--status-neutral)',
 	};
 
 	let viewMode: 'grid' | 'carousel' = $state('grid');
@@ -38,7 +38,7 @@
 			<div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem;">
 				<span
 					class="badge"
-					style="color:{statusColor[project.status]};border-color:{statusColor[project.status]}33;background:{statusColor[project.status]}11;"
+					style="color:{statusColor[project.status]};border-color:color-mix(in srgb, {statusColor[project.status]} 35%, transparent);background:color-mix(in srgb, {statusColor[project.status]} 12%, transparent);"
 				>{project.status}</span>
 				<span class="badge">{project.kind === 'software' ? 'Software' : 'Woodworking'}</span>
 			</div>
