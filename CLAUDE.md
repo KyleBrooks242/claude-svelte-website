@@ -63,7 +63,14 @@ The public, DB-backed, read-heavy pages — `/blog`, `/blog/[slug]`, `/projects`
 
 All styles live in `src/app.css` — there is no CSS framework. Design tokens are CSS custom properties on `:root` (light) and `[data-theme="dark"]`. Components use inline styles or scoped `<style>` blocks that reference those variables. Don't introduce a CSS framework without discussion.
 
-Key tokens: `--bg`, `--bg-secondary`, `--text`, `--text-muted`, `--accent`, `--border`, `--card-bg`. Utility classes defined in `app.css`: `.container`, `.page`, `.card`, `.btn`, `.btn-outline`, `.badge`, `.form-group`, `.section-tag`, `.prose`.
+**Design concept — "Shop Drawing":** the public site's visual identity is a technical/blueprint aesthetic, not a generic SaaS look. It's grounded in Kyle's two crafts (software + woodworking) both starting from a measured drawing before anything gets built. When adding UI, match this rather than reaching for default rounded-card/Inter/indigo styling:
+- **Color** — cool "vellum" paper background (not stark white or warm cream), ink text, a single blueprint-blue `--accent`, and a redline `--mark` reserved for status/emphasis (aliased into `--status-good` / `--status-warn` / `--status-bad` / `--status-neutral` — use these for any status/PR/health indicator instead of ad hoc hex colors).
+- **Type** — IBM Plex Sans (headings/body) + IBM Plex Mono (nav links, `.badge`, `.section-tag`, `<time>`, and technical/measured numbers like stats, PRs, and volumes) loaded via `@fontsource`, imported at the top of `app.css`. The mono face is used structurally, for anything that reads like a label, measurement, or spec — not decoratively.
+- **Signature motif** — small crosshair "registration marks" that fade in on hover/focus at the corners of `.card`, `.workout-card`, and `.pr-card` (drafting registration mark / woodworker's marking-gauge cross). `.divider` is a scale-bar (hairline flanked by two end ticks) rather than a plain `<hr>`. `.section-tag` gets a small accent square before the text. Corners are nearly square (`--radius: 3px`), not the rounded SaaS default.
+- There is no accent-color picker — a single considered accent is the point. Don't reintroduce a multi-palette switcher without discussion.
+- This concept currently covers only the public-facing pages/nav/footer; `/admin` intentionally keeps its plainer, utilitarian look and doesn't need to match.
+
+Key tokens: `--bg`, `--bg-secondary`, `--text`, `--text-muted`, `--accent`, `--accent-hover`, `--mark`, `--status-good`, `--status-warn`, `--status-bad`, `--status-neutral`, `--border`, `--card-bg`, `--font` (Plex Sans), `--font-mono` (Plex Mono). Utility classes defined in `app.css`: `.container`, `.page`, `.card`, `.btn`, `.btn-outline`, `.badge`, `.form-group`, `.section-tag`, `.divider`, `.prose`.
 
 ### Theme
 
