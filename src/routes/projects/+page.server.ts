@@ -1,13 +1,10 @@
 import { db } from '$lib/db';
 import { projectImages, projects } from '$lib/schema';
 import { desc, eq } from 'drizzle-orm';
-import { ISR_BYPASS_TOKEN } from '$env/static/private';
-import type { Config } from '@sveltejs/adapter-vercel';
+import { isrConfig } from '$lib/cache';
 import type { PageServerLoad } from './$types';
 
-export const config: Config = {
-	isr: { expiration: 3600, bypassToken: ISR_BYPASS_TOKEN },
-};
+export const config = isrConfig;
 
 export const load: PageServerLoad = async () => {
 	const [rows, covers] = await Promise.all([

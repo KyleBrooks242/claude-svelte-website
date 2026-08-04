@@ -3,13 +3,10 @@ import { projectImages, projects } from '$lib/schema';
 import { renderMarkdown } from '$lib/markdown';
 import { asc, eq } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
-import { ISR_BYPASS_TOKEN } from '$env/static/private';
-import type { Config } from '@sveltejs/adapter-vercel';
+import { isrConfig } from '$lib/cache';
 import type { PageServerLoad } from './$types';
 
-export const config: Config = {
-	isr: { expiration: 3600, bypassToken: ISR_BYPASS_TOKEN },
-};
+export const config = isrConfig;
 
 export const load: PageServerLoad = async ({ params }) => {
 	const [[project], images] = await Promise.all([

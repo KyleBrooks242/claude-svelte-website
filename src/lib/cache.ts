@@ -2,6 +2,18 @@ import { ISR_BYPASS_TOKEN } from '$env/static/private';
 import { db } from './db';
 import { posts, projects } from './schema';
 import { eq } from 'drizzle-orm';
+import type { Config } from '@sveltejs/adapter-vercel';
+
+/**
+ * Shared ISR config for public, DB-backed, read-heavy routes (blog list/post,
+ * projects list/detail). `expiration` is a ceiling, not the primary freshness
+ * mechanism — the admin "Clear cache" button (revalidateCachedPages, below)
+ * is what makes edits show up promptly; expiration just bounds staleness if
+ * that's ever skipped.
+ */
+export const isrConfig: Config = {
+	isr: { expiration: 60 * 60 * 24, bypassToken: ISR_BYPASS_TOKEN },
+};
 
 /**
  * Forces Vercel to regenerate the ISR cache for every public DB-backed page,
