@@ -23,7 +23,7 @@
 		<article class="card project-card">
 			<div class="project-card-image-wrap">
 				{#if project.coverImage}
-					<ImageWithSkeleton src={project.coverImage} alt={project.title} />
+					<ImageWithSkeleton src={project.coverImage} alt={project.title} width={600} />
 				{:else}
 					<div class="project-card-image project-card-placeholder"></div>
 				{/if}
