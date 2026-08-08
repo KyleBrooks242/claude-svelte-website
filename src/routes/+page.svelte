@@ -68,10 +68,10 @@
 		
 		<!--Workout Teaser-->
 		<section>
-			<p class="section-tag">Accountability</p>
+			<p class="section-tag">Exercise</p>
 			<h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Have I been working out?</h2>
 			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
-				A live look at whether I'm actually sticking to my workouts.
+				Workout info and other metrics
 			</p>
 			<a href="/exercise" class="btn btn-outline">See my latest stats →</a>
 		</section>
