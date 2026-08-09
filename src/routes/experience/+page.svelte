@@ -19,6 +19,8 @@
 				'Built an API to aggregate data across multiple disparate systems, powering both automated pipeline jobs and manual workflows.',
 				'Shipped a UI dashboard letting SMEs view, filter, and edit aggregated data to resolve discrepancies between systems of record.',
 				'Designed and built a self-service permission system — admins create custom groups, assign users, and define fine-grained view/edit permissions.',
+				'Refactored a multi-step validation flow from polling to event-driven processing, eliminating timeouts and improving UX.',
+				'Use Copilot to plan new features and refactors, and to build out robust test coverage.',
 			],
 		},
 		{

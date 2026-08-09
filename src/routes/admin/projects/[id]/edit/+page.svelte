@@ -13,6 +13,7 @@
 	let deleting = $state(false);
 	let addingImage = $state(false);
 	let removingImageId = $state<string | null>(null);
+	let settingCoverId = $state<string | null>(null);
 	let newImageUrl = $state('');
 	let newImageCaption = $state('');
 </script>
@@ -54,11 +55,28 @@
 				<div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;">
 					{#each images as image (image.id)}
 						<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;width:100px;">
-							<img
-								src={image.url}
-								alt={image.caption}
-								style="width:100px;height:100px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);"
-							/>
+							<div class="photo-thumb">
+								<img
+									src={image.url}
+									alt={image.caption}
+									style="width:100px;height:100px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);"
+								/>
+								{#if image.position === 0}
+									<span class="badge" style="position:absolute;top:0.25rem;left:0.25rem;font-size:0.6rem;padding:0.1rem 0.4rem;background:var(--card-bg);">Cover</span>
+								{:else}
+									<form method="POST" action="?/setCover" class="cover-overlay"
+										use:enhance={() => {
+											settingCoverId = image.id;
+											return async ({ update }) => { await update(); settingCoverId = null; };
+										}}
+									>
+										<input type="hidden" name="imageId" value={image.id} />
+										<button type="submit" class="cover-overlay-btn" disabled={settingCoverId === image.id}>
+											{settingCoverId === image.id ? '…' : 'Make cover photo'}
+										</button>
+									</form>
+								{/if}
+							</div>
 							<ImageCaptionForm {image} />
 							<form method="POST" action="?/removeImage" style="display:contents;"
 								use:enhance={() => {
@@ -117,3 +135,39 @@
 		</form>
 	</div>
 </main>
+
+<style>
+	.photo-thumb {
+		position: relative;
+	}
+
+	.cover-overlay {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: var(--radius);
+		opacity: 0;
+		background: rgba(0, 0, 0, 0.55);
+		transition: opacity 0.15s ease;
+	}
+
+	.photo-thumb:hover .cover-overlay,
+	.photo-thumb:focus-within .cover-overlay {
+		opacity: 1;
+	}
+
+	.cover-overlay-btn {
+		font-family: inherit;
+		font-size: 0.7rem;
+		font-weight: 600;
+		line-height: 1.2;
+		color: #fff;
+		background: transparent;
+		border: none;
+		padding: 0.5rem;
+		text-align: center;
+		cursor: pointer;
+	}
+</style>

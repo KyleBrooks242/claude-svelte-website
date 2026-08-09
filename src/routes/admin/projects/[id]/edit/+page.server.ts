@@ -82,6 +82,30 @@ export const actions: Actions = {
 			.where(and(eq(projectImages.id, imageId), eq(projectImages.projectId, params.id)));
 	},
 
+	setCover: async ({ request, params }) => {
+		const data = await request.formData();
+		const imageId = data.get('imageId') as string;
+		if (!imageId) return fail(400, { imageError: 'Missing image id' });
+
+		const [target] = await db
+			.select()
+			.from(projectImages)
+			.where(and(eq(projectImages.id, imageId), eq(projectImages.projectId, params.id)));
+		if (!target) return fail(404, { imageError: 'Image not found' });
+		if (target.position === 0) return;
+
+		const [currentCover] = await db
+			.select()
+			.from(projectImages)
+			.where(and(eq(projectImages.projectId, params.id), eq(projectImages.position, 0)));
+
+		if (currentCover) {
+			await db.update(projectImages).set({ position: target.position }).where(eq(projectImages.id, currentCover.id));
+		}
+
+		await db.update(projectImages).set({ position: 0 }).where(eq(projectImages.id, target.id));
+	},
+
 	removeImage: async ({ request, params }) => {
 		const data = await request.formData();
 		const imageId = data.get('imageId') as string;

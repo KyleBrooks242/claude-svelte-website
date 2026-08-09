@@ -381,3 +381,39 @@ time {
 .prose p { margin-bottom: 1rem; color: var(--text-muted); }
 .prose h2 { margin: 2rem 0 0.75rem; font-size: 1.4rem; }
 .prose h3 { margin: 1.5rem 0 0.5rem; font-size: 1.1rem; }
+.prose ul,
+.prose ol {
+	margin: 0 0 1rem 1.25rem;
+	padding-left: 0.25rem;
+	color: var(--text-muted);
+}
+.prose li { margin-bottom: 0.3rem; }
+.prose a { color: var(--accent); }
+.prose strong { color: var(--text); }
+.prose blockquote {
+	border-left: 3px solid var(--accent);
+	padding-left: 1rem;
+	color: var(--text-muted);
+	font-style: italic;
+	margin: 1rem 0;
+}
+.prose code {
+	background: var(--bg-secondary);
+	padding: 0.1em 0.4em;
+	border-radius: var(--radius);
+	font-size: 0.88em;
+	font-family: var(--font-mono);
+}
+.prose pre {
+	background: var(--bg-secondary);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1rem 1.25rem;
+	overflow-x: auto;
+	margin-bottom: 1.25rem;
+}
+.prose pre code {
+	background: none;
+	padding: 0;
+	font-size: 0.85em;
+}
