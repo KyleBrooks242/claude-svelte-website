@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { postComments } from '$lib/schema';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -39,5 +40,6 @@
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html html}
 		</div>
+	
 	</div>
 </main>

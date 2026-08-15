@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { db } from '$lib/db';
-import { posts } from '$lib/schema';
+import { postComments, posts } from '$lib/schema';
 import { renderMarkdown } from '$lib/markdown';
 import { readingTime } from '$lib/types';
 import { eq, and } from 'drizzle-orm';
@@ -18,6 +18,15 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	if (!post) throw error(404, 'Post not found');
 
+	const comments = await db
+		.select({
+			name: postComments.name,
+			comment: postComments.comment,
+			createdAt: postComments.createdAt
+		})
+		.from(postComments)
+		.where(eq(postComments.postId, post.id));
+
 	return {
 		post: {
 			id: post.id,
@@ -27,6 +36,11 @@ export const load: PageServerLoad = async ({ params }) => {
 			publishedAt: post.publishedAt?.toISOString() ?? null,
 			readingTime: readingTime(post.content),
 		},
+		comments: comments.map((c) => ({
+			name: c.name,
+			comment: c.comment,
+			createdAt: c.createdAt.toISOString()
+		})),
 		html: renderMarkdown(post.content),
 	};
 };
