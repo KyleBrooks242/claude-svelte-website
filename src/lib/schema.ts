@@ -23,6 +23,7 @@ export const postComments = pgTable('post_comments', {
 	postId: uuid('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
 	name: varchar('name', { length: 50 }).notNull(),
 	comment: varchar('comment', { length: 500 }).notNull(),
+	ip: text('ip').notNull(),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
