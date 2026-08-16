@@ -14,8 +14,21 @@ export const posts = pgTable('posts', {
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
+
+export const postComments = pgTable('post_comments', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	postId: uuid('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
+	name: varchar('name', { length: 50 }).notNull(),
+	comment: varchar('comment', { length: 500 }).notNull(),
+	ip: text('ip').notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type PostComment = typeof postComments.$inferSelect;
+export type NewPostComment = typeof postComments.$inferInsert;
 
 export const projects = pgTable('projects', {
 	id: uuid('id').primaryKey().defaultRandom(),

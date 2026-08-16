@@ -15,12 +15,12 @@ export const load: PageServerLoad = async () => {
 			.where(eq(projectImages.position, 0)),
 	]);
 
-	const coverMap = new Map(covers.map((c) => [c.projectId, c.url]));
+	const coverImagesMap = new Map(covers.map((c) => [c.projectId, c.url]));
 
 	return {
 		projects: rows.map((r) => ({
 			...r,
-			coverImage: coverMap.get(r.id) ?? null,
+			coverImage: coverImagesMap.get(r.id) ?? null,
 			createdAt: r.createdAt.toISOString(),
 			updatedAt: r.updatedAt.toISOString(),
 		})),
