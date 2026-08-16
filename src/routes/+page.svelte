@@ -57,9 +57,8 @@
 		<!-- Recent posts teaser -->
 		<section>
 			<p class="section-tag">Writing</p>
-			<h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">From the blog</h2>
 			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
-				Occasionally, I might write something
+				I may write something from time to time
 			</p>
 			<a href="/blog" class="btn btn-outline">Read posts →</a>
 		</section>
@@ -69,7 +68,6 @@
 		<!--Workout Teaser-->
 		<section>
 			<p class="section-tag">Exercise</p>
-			<h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Have I been working out?</h2>
 			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
 				Workout info and other metrics
 			</p>
@@ -81,7 +79,9 @@
 		<!-- Skills -->
 		<section style="margin-bottom: 4rem;">
 			<p class="section-tag">Skills</p>
-			<h2 style="font-size: 1.5rem; margin-bottom: 1.25rem;">What I work with</h2>
+			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
+				What I work with
+			</p>
 			<div class="skill-marquee">
 				<div class="skill-track">
 					{#each marqueeSkills as skill}
