@@ -21,6 +21,27 @@ export const isrConfig: Config = {
  * route's `config` export). Used by the admin "Clear cache" button so
  * content edits show up immediately instead of waiting for isr.expiration.
  */
+/**
+ * Forces Vercel to regenerate the ISR cache for a single path. Used where a
+ * mutation happens on a public, non-admin route (e.g. posting a blog
+ * comment) so the change is visible immediately instead of waiting for
+ * isr.expiration or the next admin "Clear cache" run.
+ */
+export async function revalidatePath(
+	origin: string,
+	path: string,
+	fetchFn: typeof fetch,
+): Promise<boolean> {
+	try {
+		const res = await fetchFn(`${origin}${path}`, {
+			headers: { 'x-prerender-revalidate': ISR_BYPASS_TOKEN },
+		});
+		return res.ok;
+	} catch {
+		return false;
+	}
+}
+
 export async function revalidateCachedPages(
 	origin: string,
 	fetchFn: typeof fetch,
@@ -38,15 +59,6 @@ export async function revalidateCachedPages(
 	];
 
 	return Promise.all(
-		paths.map(async (path) => {
-			try {
-				const res = await fetchFn(`${origin}${path}`, {
-					headers: { 'x-prerender-revalidate': ISR_BYPASS_TOKEN },
-				});
-				return { path, ok: res.ok };
-			} catch {
-				return { path, ok: false };
-			}
-		}),
+		paths.map(async (path) => ({ path, ok: await revalidatePath(origin, path, fetchFn) })),
 	);
 }

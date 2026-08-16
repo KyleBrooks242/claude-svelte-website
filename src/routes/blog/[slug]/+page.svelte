@@ -1,20 +1,49 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Turnstile } from 'svelte-turnstile';
 
-	let { data, form }: { data: PageData; form: ActionData } = $props();
+	let { data }: { data: PageData } = $props();
 	const post = $derived(data.post);
 	const comments = $derived(data.comments);
 	const html = $derived(data.html);
 
 	let submitting = $state(false);
 	let reset = $state<() => void>();
+	let success = $state(false);
+	let errorMessage = $state<string | null>(null);
 
 	function formatDate(iso: string | null) {
 		if (!iso) return '';
 		return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+	}
+
+	async function handleSubmit(event: SubmitEvent) {
+		event.preventDefault();
+		const form = event.currentTarget as HTMLFormElement;
+
+		submitting = true;
+		success = false;
+		errorMessage = null;
+
+		try {
+			const res = await fetch(`/blog/${post.slug}/comment`, { method: 'POST', body: new FormData(form) });
+			const result = await res.json();
+
+			if (result.success) {
+				success = true;
+				form.reset();
+				await invalidateAll();
+			} else {
+				errorMessage = result.message ?? 'Something went wrong. Please try again.';
+			}
+		} catch {
+			errorMessage = 'Something went wrong. Please try again.';
+		} finally {
+			submitting = false;
+			reset?.();
+		}
 	}
 </script>
 
@@ -73,21 +102,11 @@
 			<div class="comment-form-wrap">
 				<h3 style="font-size:1.05rem;margin-bottom:1rem;">Leave a comment</h3>
 
-				{#if form?.success}
+				{#if success}
 					<p style="color:var(--status-good);font-size:0.9rem;margin-bottom:1rem;">Comment posted — thanks!</p>
 				{/if}
 
-				<form
-					method="POST"
-					use:enhance={() => {
-						submitting = true;
-						return async ({ update }) => {
-							await update();
-							submitting = false;
-							reset?.();
-						};
-					}}
-				>
+				<form method="POST" onsubmit={handleSubmit}>
 					<!-- honeypot field, hidden from real users -->
 					<div style="position:absolute;left:-9999px;" aria-hidden="true">
 						<label>
@@ -96,21 +115,21 @@
 						</label>
 					</div>
 
-					{#if form?.message}
-						<p style="color:var(--status-bad);margin-bottom:1rem;font-size:0.9rem;">{form.message}</p>
+					{#if errorMessage}
+						<p style="color:var(--status-bad);margin-bottom:1rem;font-size:0.9rem;">{errorMessage}</p>
 					{/if}
 
 					<div class="form-group">
 						<label for="comment-name">Name</label>
-						<input id="comment-name" name="name" type="text" required maxlength="50" value={form?.name ?? ''} />
+						<input id="comment-name" name="name" type="text" required maxlength="50" />
 					</div>
 
 					<div class="form-group">
 						<label for="comment-body">Comment</label>
-						<textarea id="comment-body" name="comment" rows="4" required maxlength="500">{form?.comment ?? ''}</textarea>
+						<textarea id="comment-body" name="comment" rows="4" required maxlength="500"></textarea>
 					</div>
 
-					<Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} bind:reset/>
+					<Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} bind:reset theme="auto"/>
 
 					<button type="submit" class="btn" disabled={submitting}>
 						{submitting ? 'Posting…' : 'Add comment'}
