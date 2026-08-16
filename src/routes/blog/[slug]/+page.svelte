@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 	import type { ActionData, PageData } from './$types';
+	import { Turnstile } from 'svelte-turnstile';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const post = $derived(data.post);
@@ -9,6 +10,7 @@
 	const html = $derived(data.html);
 
 	let submitting = $state(false);
+	let reset = $state<() => void>();
 
 	function formatDate(iso: string | null) {
 		if (!iso) return '';
@@ -18,7 +20,6 @@
 
 <svelte:head>
 	<title>{post.title} · Kyle Brooks</title>
-	<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </svelte:head>
 
 <main class="page">
@@ -83,7 +84,7 @@
 						return async ({ update }) => {
 							await update();
 							submitting = false;
-							(window as any).turnstile?.reset();
+							reset?.();
 						};
 					}}
 				>
@@ -109,7 +110,7 @@
 						<textarea id="comment-body" name="comment" rows="4" required maxlength="500">{form?.comment ?? ''}</textarea>
 					</div>
 
-					<div class="cf-turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY} style="margin-bottom:1rem;"></div>
+					<Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} bind:reset/>
 
 					<button type="submit" class="btn" disabled={submitting}>
 						{submitting ? 'Posting…' : 'Add comment'}
