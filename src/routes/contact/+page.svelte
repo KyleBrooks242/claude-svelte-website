@@ -2,14 +2,17 @@
 	import { enhance } from '$app/forms';
 	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 	import type { ActionData } from './$types';
+	import { Turnstile } from 'svelte-turnstile';
 
 	let { form }: { form: ActionData } = $props();
 	let submitting = $state(false);
+	let reset = $state<() => void>();
+
+
 </script>
 
 <svelte:head>
 	<title>Contact · Kyle Brooks</title>
-	<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </svelte:head>
 
 <main class="page">
@@ -43,7 +46,7 @@
 						return async ({ update }) => {
 							await update();
 							submitting = false;
-							(window as any).turnstile?.reset();
+							reset?.();
 						};
 					}}
 				>
@@ -74,7 +77,7 @@
 						<textarea id="body" name="body" rows="5" required maxlength="500">{form?.body ?? ''}</textarea>
 					</div>
 
-					<div class="cf-turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY} style="margin-bottom:1rem;"></div>
+					<Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} bind:reset/>
 
 					<button type="submit" class="btn" disabled={submitting}>
 						{submitting ? 'Sending…' : 'Send message'}
