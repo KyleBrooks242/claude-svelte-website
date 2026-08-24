@@ -136,9 +136,6 @@
 
 <main class="page">
 	<div class="container">
-		<a href="/" style="font-size:0.85rem;color:var(--text-muted);display:inline-flex;align-items:center;gap:0.3rem;margin-bottom:2rem;">
-			← Back home
-		</a>
 
 		<section style="display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;text-align:center;margin:2rem 0 3rem;">
 			<div>
@@ -555,11 +552,6 @@
 		pointer-events: none;
 	}
 
-	.pr-card:hover {
-		transform: translateY(-3px);
-		border-color: var(--accent);
-		box-shadow: 0 8px 28px color-mix(in srgb, var(--accent) 30%, transparent);
-	}
 
 	.pr-card-featured {
 		border-color: var(--accent);
