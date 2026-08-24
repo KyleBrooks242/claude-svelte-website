@@ -288,7 +288,7 @@
 				{#each exercisePrs as pr (pr.id)}
 					<div class="pr-card" class:pr-card-featured={pr.id === latestPrId}>
 						{#if pr.id === latestPrId}
-							<span class="pr-card-badge">★ Latest PR</span>
+							<span class="pr-card-badge">★ Latest PR ★</span>
 						{/if}
 						<p class="pr-card-name">{pr.exerciseName}</p>
 						<p class="pr-card-value">{formatWeight(pr.personalRecord)}</p>
@@ -509,7 +509,14 @@
 
 	@media (max-width: 480px) {
 		.exercise-row {
-			grid-template-columns: minmax(0, 1fr) auto;
+			grid-template-columns: minmax(0, 1fr) auto auto;
+			background: var(--bg-secondary);
+			border: 1px solid var(--border);
+		}
+
+		.exercise-row:hover {
+			transform: none;
+			box-shadow: none;
 		}
 
 		.exercise-bar-track {
@@ -517,7 +524,9 @@
 		}
 
 		.exercise-chevron {
-			display: none;
+			width: 1.5rem;
+			height: 1.3rem;
+			font-size: 0.85rem;
 		}
 	}
 
