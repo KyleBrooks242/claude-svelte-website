@@ -228,9 +228,7 @@ nav {
 	padding: 1.5rem;
 	transition: border-color 0.2s;
 }
-.card::after,
-.workout-card::after,
-.pr-card::after {
+.card::after {
 	content: '';
 	position: absolute;
 	inset: 0;
@@ -248,9 +246,7 @@ nav {
 		linear-gradient(var(--accent), var(--accent)) bottom right / 9px 1px no-repeat;
 }
 .card:hover::after,
-.card:focus-within::after,
-.workout-card:hover::after,
-.pr-card:hover::after {
+.card:focus-within::after {
 	opacity: 1;
 }
 
