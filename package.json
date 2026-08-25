@@ -34,6 +34,7 @@
 		"@neondatabase/serverless": "^1.1.0",
 		"bcryptjs": "^3.0.3",
 		"drizzle-orm": "^0.45.2",
-		"marked": "^18.0.5"
+		"marked": "^18.0.5",
+		"svelte-turnstile": "^0.11.0"
 	}
 }

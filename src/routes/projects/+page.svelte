@@ -60,7 +60,6 @@
 <main class="page">
 	<div class="container">
 		<p class="section-tag">Portfolio</p>
-		<h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Projects</h1>
 		<p style="color: var(--text-muted); margin-bottom: 3.5rem;">
 			A few projects from the office and the workshop
 		</p>
