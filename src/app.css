@@ -160,17 +160,17 @@ nav {
 /* hamburger */
 .nav-toggle {
 	display: none;
+	align-items: center;
+	justify-content: center;
 	background: none;
 	border: none;
 	cursor: pointer;
 	padding: 0.4rem 0.5rem;
 	color: var(--text);
-	font-size: 1.5rem;
-	line-height: 1;
 }
 
 @media (max-width: 600px) {
-	.nav-toggle { display: block; }
+	.nav-toggle { display: flex; }
 	.nav-menu {
 		display: none;
 		flex-direction: column;

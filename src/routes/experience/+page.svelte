@@ -1,4 +1,6 @@
 <script lang="ts">
+	import IconArrowDown from '~icons/teenyicons/arrow-down-outline';
+
 	type Job = {
 		company: string;
 		role: string;
@@ -179,9 +181,9 @@
 			</p>
 			<a href="#timeline" class="scroll-cue" aria-label="Scroll to timeline">
 				<span>Scroll</span>
-				<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M12 5v14M5 12l7 7 7-7" />
-				</svg>
+				<span class="scroll-cue-icon">
+					<IconArrowDown width={16} height={16} />
+				</span>
 			</a>
 		</section>
 
@@ -309,7 +311,8 @@
 		text-decoration: none;
 	}
 	@media (prefers-reduced-motion: no-preference) {
-		.scroll-cue svg {
+		.scroll-cue-icon {
+			display: inline-flex;
 			animation: bounce 1.6s ease-in-out infinite;
 		}
 	}

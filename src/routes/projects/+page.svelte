@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import ImageWithSkeleton from '$lib/ImageWithSkeleton.svelte';
+	import IconArrowRight from '~icons/teenyicons/arrow-right-outline';
 
 	let { data }: { data: PageData } = $props();
 
@@ -47,7 +48,7 @@
 							<span class="badge">{tag}</span>
 						{/each}
 					</div>
-					<span class="project-card-cta">View project <span class="arrow">→</span></span>
+					<span class="project-card-cta">View project <span class="arrow"><IconArrowRight width="0.85em" height="0.85em" /></span></span>
 				</div>
 			</div>
 		</article>

@@ -1,6 +1,10 @@
 <script lang="ts">
 	import '../app.css';
 	import { page, navigating } from '$app/stores';
+	import IconSun from '~icons/teenyicons/sun-outline';
+	import IconMoon from '~icons/teenyicons/moon-outline';
+	import IconMenu from '~icons/teenyicons/menu-outline';
+	import IconClose from '~icons/teenyicons/x-outline';
 
 	let { children } = $props();
 
@@ -69,14 +73,9 @@
 				onclick={toggleTheme}
 			>
 				{#if theme === 'dark'}
-					<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<circle cx="12" cy="12" r="4" />
-						<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-					</svg>
+					<IconSun width={15} height={15} />
 				{:else}
-					<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z" />
-					</svg>
+					<IconMoon width={15} height={15} />
 				{/if}
 			</button>
 			<button
@@ -84,7 +83,11 @@
 				aria-label="Toggle menu"
 				onclick={() => (menuOpen = !menuOpen)}
 			>
-				{menuOpen ? '✕' : '☰'}
+				{#if menuOpen}
+					<IconClose width={17} height={17} />
+				{:else}
+					<IconMenu width={17} height={17} />
+				{/if}
 			</button>
 		</div>
 	</div>

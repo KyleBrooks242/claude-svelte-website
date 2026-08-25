@@ -1,6 +1,7 @@
 import adapter from '@sveltejs/adapter-vercel';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import Icons from 'unplugin-icons/vite';
 
 export default defineConfig({
 	plugins: [
@@ -11,6 +12,7 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			adapter: adapter()
-		})
+		}),
+		Icons({ compiler: 'svelte' })
 	]
 });
