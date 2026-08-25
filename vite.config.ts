@@ -12,12 +12,11 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			adapter: adapter()
-		})
+
+		}),
+		Icons({ compiler: 'svelte' })
 	],
 	ssr: {
 		noExternal: ['svelte-turnstile']
 	}
-		}),
-		Icons({ compiler: 'svelte' })
-	]
 });
