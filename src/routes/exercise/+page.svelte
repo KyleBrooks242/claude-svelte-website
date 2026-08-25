@@ -1,6 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import type { HevyExercise, HevySet } from '$lib/types';
+	import IconDown from '~icons/teenyicons/down-solid';
+	import IconUp from '~icons/teenyicons/up-solid';
+	import StarSolidIcon from '~icons/teenyicons/star-solid';
 
 	let { data }: { data: PageData } = $props();
 	const workout = $derived(data.workout);
@@ -136,9 +139,6 @@
 
 <main class="page">
 	<div class="container">
-		<a href="/" style="font-size:0.85rem;color:var(--text-muted);display:inline-flex;align-items:center;gap:0.3rem;margin-bottom:2rem;">
-			← Back home
-		</a>
 
 		<section style="display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;text-align:center;margin:2rem 0 3rem;">
 			<div>
@@ -223,7 +223,13 @@
 								<span class="exercise-volume"
 									>{cardio ? formatSetDuration(cardioDuration) : formatWeight(volume)}</span
 								>
-								<span class="exercise-chevron" class:expanded={isExpanded} aria-hidden="true">⌄</span>
+								<span class="exercise-chevron" aria-hidden="true">
+									{#if isExpanded}
+										<IconUp width="0.7rem" height="0.7rem" />
+									{:else}
+										<IconDown width="0.7rem" height="0.7rem" />
+									{/if}
+								</span>
 							</button>
 
 							{#if isExpanded}
@@ -288,7 +294,11 @@
 				{#each exercisePrs as pr (pr.id)}
 					<div class="pr-card" class:pr-card-featured={pr.id === latestPrId}>
 						{#if pr.id === latestPrId}
-							<span class="pr-card-badge">★ Latest PR</span>
+							<span class="pr-card-badge">
+								<StarSolidIcon height="1em" /> 
+								Latest PR
+								<StarSolidIcon height="1em" /> 
+							</span>
 						{/if}
 						<p class="pr-card-name">{pr.exerciseName}</p>
 						<p class="pr-card-value">{formatWeight(pr.personalRecord)}</p>
@@ -373,12 +383,12 @@
 
 	.exercise-row {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(80px, 30%) auto auto;
+		grid-template-columns: minmax(0, 1fr) minmax(80px, 30%) 5rem 2rem;
 		align-items: center;
 		gap: 0.85rem;
 		width: calc(100% + 1.2rem);
 		margin: 0 -0.6rem;
-		background: none;
+		background: var(--card-bg);
 		border: none;
 		border-radius: var(--radius);
 		padding: 0.45rem 0.6rem;
@@ -402,23 +412,15 @@
 		width: 2rem;
 		height: 1.4rem;
 		flex-shrink: 0;
-		font-size: 1rem;
-		font-weight: 700;
-		line-height: 1;
-		padding-bottom: 0.6rem;
 		color: var(--accent);
 		background: color-mix(in srgb, var(--accent) 12%, transparent);
 		border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
-		border-radius: 999px;
-		transition: transform 0.2s ease, background 0.2s ease;
+		border-radius: var(--radius);
+		transition: background 0.2s ease;
 	}
 
 	.exercise-row:hover .exercise-chevron {
 		background: color-mix(in srgb, var(--accent) 20%, transparent);
-	}
-
-	.exercise-chevron.expanded {
-		transform: rotate(180deg);
 	}
 
 	.set-table-wrap {
@@ -481,6 +483,7 @@
 		color: var(--text-muted);
 		white-space: nowrap;
 		font-variant-numeric: tabular-nums;
+		text-align: right;
 	}
 
 	.total-weight-block {
@@ -509,7 +512,14 @@
 
 	@media (max-width: 480px) {
 		.exercise-row {
-			grid-template-columns: minmax(0, 1fr) auto;
+			grid-template-columns: minmax(0, 1fr) auto auto;
+			background: var(--card-bg);
+			border: 1px solid var(--border);
+		}
+
+		.exercise-row:hover {
+			transform: none;
+			box-shadow: none;
 		}
 
 		.exercise-bar-track {
@@ -517,7 +527,8 @@
 		}
 
 		.exercise-chevron {
-			display: none;
+			width: 1.5rem;
+			height: 1.3rem;
 		}
 	}
 
@@ -546,11 +557,6 @@
 		pointer-events: none;
 	}
 
-	.pr-card:hover {
-		transform: translateY(-3px);
-		border-color: var(--accent);
-		box-shadow: 0 8px 28px color-mix(in srgb, var(--accent) 30%, transparent);
-	}
 
 	.pr-card-featured {
 		border-color: var(--accent);
@@ -577,7 +583,7 @@
 		top: 0.65rem;
 		left: 50%;
 		transform: translateX(-50%);
-		font-size: 0.62rem;
+		font-size: 0.61rem;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;

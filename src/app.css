@@ -160,17 +160,17 @@ nav {
 /* hamburger */
 .nav-toggle {
 	display: none;
+	align-items: center;
+	justify-content: center;
 	background: none;
 	border: none;
 	cursor: pointer;
 	padding: 0.4rem 0.5rem;
 	color: var(--text);
-	font-size: 1.5rem;
-	line-height: 1;
 }
 
 @media (max-width: 600px) {
-	.nav-toggle { display: block; }
+	.nav-toggle { display: flex; }
 	.nav-menu {
 		display: none;
 		flex-direction: column;
@@ -178,16 +178,26 @@ nav {
 		position: absolute;
 		top: 56px;
 		left: 0; right: 0;
-		background: var(--bg);
+		background: var(--bg-secondary);
 		border-bottom: 1px solid var(--border);
 		padding: 0.75rem 1.25rem 1rem;
 	}
 	.nav-menu.open { display: flex; }
 	.nav-links {
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.75rem;
+		align-items: stretch;
+		width: 100%;
+		gap: 0;
 	}
+	.nav-links li { width: 100%; }
+	.nav-links a {
+		display: block;
+		width: 100%;
+		padding: 0.85rem 0.25rem;
+		border-bottom: 1px solid var(--border);
+		font-size: 0.85rem;
+	}
+	.nav-links li:last-child a { border-bottom: none; }
 }
 
 /* ── Theme toggle ── */
@@ -218,9 +228,7 @@ nav {
 	padding: 1.5rem;
 	transition: border-color 0.2s;
 }
-.card::after,
-.workout-card::after,
-.pr-card::after {
+.card::after {
 	content: '';
 	position: absolute;
 	inset: 0;
@@ -238,9 +246,7 @@ nav {
 		linear-gradient(var(--accent), var(--accent)) bottom right / 9px 1px no-repeat;
 }
 .card:hover::after,
-.card:focus-within::after,
-.workout-card:hover::after,
-.pr-card:hover::after {
+.card:focus-within::after {
 	opacity: 1;
 }
 

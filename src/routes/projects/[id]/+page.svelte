@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import ImageWithSkeleton from '$lib/ImageWithSkeleton.svelte';
+	import IconArrowLeft from '~icons/teenyicons/arrow-left-outline';
+	import IconArrowRight from '~icons/teenyicons/arrow-right-outline';
 
 	let { data }: { data: PageData } = $props();
 	const project = $derived(data.project);
@@ -31,7 +33,7 @@
 <main class="page">
 	<div class="container">
 		<a href="/projects" style="font-size:0.85rem;color:var(--text-muted);display:inline-flex;align-items:center;gap:0.3rem;margin-bottom:2rem;">
-			← Back to projects
+			<IconArrowLeft width="0.9em" height="0.9em" /> Back to projects
 		</a>
 
 		<header style="margin-bottom:2.5rem;">
@@ -121,14 +123,10 @@
 
 						{#if images.length > 1}
 							<button type="button" class="carousel-nav carousel-nav-prev" aria-label="Previous image" onclick={prevSlide}>
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									<polyline points="15 18 9 12 15 6"></polyline>
-								</svg>
+								<IconArrowLeft width="1.1rem" height="1.1rem" />
 							</button>
 							<button type="button" class="carousel-nav carousel-nav-next" aria-label="Next image" onclick={nextSlide}>
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									<polyline points="9 18 15 12 9 6"></polyline>
-								</svg>
+								<IconArrowRight width="1.1rem" height="1.1rem" />
 							</button>
 						{/if}
 					</div>
@@ -236,11 +234,6 @@
 		cursor: pointer;
 		opacity: 0.75;
 		transition: opacity 0.15s ease, transform 0.15s ease;
-	}
-
-	.carousel-nav svg {
-		width: 1.1rem;
-		height: 1.1rem;
 	}
 
 	.carousel-nav:hover {

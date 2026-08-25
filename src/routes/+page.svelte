@@ -1,5 +1,7 @@
 <script lang="ts">
-	const skills = 
+	import IconArrowRight from '~icons/teenyicons/arrow-right-outline';
+
+	const skills =
 	[
 		'AWS',
 		'TypeScript',
@@ -60,7 +62,7 @@
 			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
 				I may write something from time to time
 			</p>
-			<a href="/blog" class="btn btn-outline">Read posts →</a>
+			<a href="/blog" class="btn btn-outline">Read posts <IconArrowRight width="0.85em" height="0.85em" /></a>
 		</section>
 
 		<hr class="divider" />
@@ -71,7 +73,7 @@
 			<p style="color:var(--text-muted); margin-bottom: 1.25rem;">
 				Workout info and other metrics
 			</p>
-			<a href="/exercise" class="btn btn-outline">See my latest stats →</a>
+			<a href="/exercise" class="btn btn-outline">See my latest stats <IconArrowRight width="0.85em" height="0.85em" /></a>
 		</section>
 
 		<hr class="divider" />

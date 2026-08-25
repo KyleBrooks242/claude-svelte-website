@@ -1,6 +1,7 @@
 import adapter from '@sveltejs/adapter-vercel';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import Icons from 'unplugin-icons/vite';
 
 export default defineConfig({
 	plugins: [
@@ -16,4 +17,7 @@ export default defineConfig({
 	ssr: {
 		noExternal: ['svelte-turnstile']
 	}
+		}),
+		Icons({ compiler: 'svelte' })
+	]
 });

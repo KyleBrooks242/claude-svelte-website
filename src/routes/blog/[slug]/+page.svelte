@@ -3,6 +3,7 @@
 	import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 	import type { PageData } from './$types';
 	import { Turnstile } from 'svelte-turnstile';
+	import IconArrowLeft from '~icons/teenyicons/arrow-left-outline';
 
 	let { data }: { data: PageData } = $props();
 	const post = $derived(data.post);
@@ -54,7 +55,7 @@
 <main class="page">
 	<div class="container">
 		<a href="/blog" style="font-size:0.85rem;color:var(--text-muted);display:inline-flex;align-items:center;gap:0.3rem;margin-bottom:2rem;">
-			← Back to blog
+			<IconArrowLeft width="0.9em" height="0.9em" /> Back to blog
 		</a>
 
 		<header style="margin-bottom:2.5rem;">
