@@ -295,9 +295,9 @@
 					<div class="pr-card" class:pr-card-featured={pr.id === latestPrId}>
 						{#if pr.id === latestPrId}
 							<span class="pr-card-badge">
-								<StarSolidIcon height="1em" /> 
+								<StarSolidIcon height="1em" />
 								Latest PR
-								<StarSolidIcon height="1em" /> 
+								<StarSolidIcon height="1em" />
 							</span>
 						{/if}
 						<p class="pr-card-name">{pr.exerciseName}</p>
@@ -530,6 +530,12 @@
 			width: 1.5rem;
 			height: 1.3rem;
 		}
+
+		.pr-card-badge {
+			font-size: 0.53rem;
+			padding: 0.15rem 0.4rem;
+			gap: 0.2rem;
+		}
 	}
 
 	.pr-grid {
@@ -583,6 +589,10 @@
 		top: 0.65rem;
 		left: 50%;
 		transform: translateX(-50%);
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		white-space: nowrap;
 		font-size: 0.61rem;
 		font-weight: 700;
 		text-transform: uppercase;
