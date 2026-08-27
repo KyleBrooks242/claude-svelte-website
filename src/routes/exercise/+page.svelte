@@ -136,17 +136,145 @@
 
 	let prCarouselEl = $state<HTMLDivElement | null>(null);
 	let activePrIndex = $state(0);
+	let isPrCarouselViewport = $state(false);
 
-	function handlePrScroll() {
-		if (!prCarouselEl || exercisePrs.length < 2) return;
-		const maxScroll = prCarouselEl.scrollWidth - prCarouselEl.clientWidth;
-		if (maxScroll <= 0) {
-			activePrIndex = 0;
+	let isPrDragging = $state(false);
+	let dragDeltaX = $state(0);
+	let dragStartX = 0;
+	let dragCardWidth = 1;
+	let dragPointerId: number | null = null;
+
+	const PR_DRAG_STEP_FRACTION = 0.58;
+
+	// Fractional "virtual" index: integer while idle, shifts continuously while dragging
+	// so the whole carousel tracks the pointer before settling on release.
+	const livePrIndex = $derived(activePrIndex - dragDeltaX / (dragCardWidth * PR_DRAG_STEP_FRACTION));
+
+	function prCircularDelta(i: number, center: number, n: number): number {
+		// shortest signed distance around the ring, so wrapping past the last
+		// card always continues forward instead of snapping back across the set
+		let d = i - center;
+		d = ((d % n) + n) % n;
+		if (d > n / 2) d -= n;
+		return d;
+	}
+
+	function prCardStyle(i: number): string {
+		const n = exercisePrs.length;
+		const d = prCircularDelta(i, livePrIndex, n);
+		const absD = Math.abs(d);
+		const x = d * 58;
+		const z = -absD * 120;
+		const ry = d * -22;
+		const scale = Math.max(1 - absD * 0.18, 0.55);
+		const opacity = absD > 2.3 ? 0 : Math.max(1 - absD * 0.32, 0);
+		const transition = isPrDragging
+			? 'none'
+			: 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease';
+		return `--pr-x:${x}%; --pr-z:${z}px; --pr-ry:${ry}deg; --pr-scale:${scale}; opacity:${opacity}; z-index:${100 - Math.round(absD * 10)}; pointer-events:${absD < 0.5 ? 'auto' : 'none'}; transition:${transition};`;
+	}
+
+	const PR_AUTOPLAY_INTERVAL = 4000;
+	const PR_AUTOPLAY_RESUME_DELAY = 5000;
+
+	let prAutoplayTimer: ReturnType<typeof setInterval> | null = null;
+	let prResumeTimer: ReturnType<typeof setTimeout> | null = null;
+
+	function prShouldAutoplay(): boolean {
+		return (
+			isPrCarouselViewport &&
+			typeof window !== 'undefined' &&
+			!window.matchMedia('(prefers-reduced-motion: reduce)').matches
+		);
+	}
+
+	function stopPrAutoplay() {
+		if (prAutoplayTimer) {
+			clearInterval(prAutoplayTimer);
+			prAutoplayTimer = null;
+		}
+	}
+
+	function startPrAutoplay() {
+		stopPrAutoplay();
+		if (exercisePrs.length < 2 || !prShouldAutoplay()) return;
+		prAutoplayTimer = setInterval(() => {
+			if (!prShouldAutoplay()) {
+				stopPrAutoplay();
+				return;
+			}
+			activePrIndex = (activePrIndex + 1) % exercisePrs.length;
+		}, PR_AUTOPLAY_INTERVAL);
+	}
+
+	function pausePrAutoplay() {
+		stopPrAutoplay();
+		if (prResumeTimer) {
+			clearTimeout(prResumeTimer);
+			prResumeTimer = null;
+		}
+	}
+
+	function schedulePrAutoplayResume() {
+		if (prResumeTimer) clearTimeout(prResumeTimer);
+		prResumeTimer = setTimeout(startPrAutoplay, PR_AUTOPLAY_RESUME_DELAY);
+	}
+
+	function handlePrPointerDown(e: PointerEvent) {
+		if (exercisePrs.length < 2) return;
+		pausePrAutoplay();
+		isPrDragging = true;
+		dragStartX = e.clientX;
+		dragDeltaX = 0;
+		dragPointerId = e.pointerId;
+		const sampleCard = prCarouselEl?.querySelector('.pr-card') as HTMLElement | null;
+		dragCardWidth = sampleCard?.clientWidth || prCarouselEl?.clientWidth || 1;
+		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+	}
+
+	function handlePrPointerMove(e: PointerEvent) {
+		if (!isPrDragging || e.pointerId !== dragPointerId) return;
+		dragDeltaX = e.clientX - dragStartX;
+	}
+
+	function endPrDrag() {
+		if (!isPrDragging) return;
+		isPrDragging = false;
+		const n = exercisePrs.length;
+		const step = Math.round(-dragDeltaX / (dragCardWidth * PR_DRAG_STEP_FRACTION));
+		if (step !== 0) {
+			activePrIndex = (((activePrIndex + step) % n) + n) % n;
+		}
+		dragDeltaX = 0;
+		dragPointerId = null;
+		schedulePrAutoplayResume();
+	}
+
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+		const mq = window.matchMedia('(max-width: 600px)');
+		const update = () => {
+			isPrCarouselViewport = mq.matches;
+		};
+		update();
+		mq.addEventListener('change', update);
+		return () => mq.removeEventListener('change', update);
+	});
+
+	$effect(() => {
+		if (exercisePrs.length < 2 || !isPrCarouselViewport) {
+			stopPrAutoplay();
 			return;
 		}
-		const progress = prCarouselEl.scrollLeft / maxScroll;
-		activePrIndex = Math.round(progress * (exercisePrs.length - 1));
-	}
+		startPrAutoplay();
+		return () => {
+			stopPrAutoplay();
+			if (prResumeTimer) {
+				clearTimeout(prResumeTimer);
+				prResumeTimer = null;
+			}
+		};
+	});
 </script>
 
 <svelte:head><title>Exercise · Kyle Brooks</title></svelte:head>
@@ -155,22 +283,6 @@
 	<div class="container">
 
 		<section style="display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;text-align:center;margin:2rem 0 3rem;">
-			<div>
-				<p class="section-tag" style="display:inline-flex;align-items:center;gap:0.35rem;">
-					Workouts skipped
-					<button
-						type="button"
-						class="tooltip-trigger"
-						aria-label="Approximate number of skipped workouts since January 1st, 2025"
-					>
-						<span class="tooltip-icon" aria-hidden="true">?</span>
-						<span class="tooltip-bubble" role="tooltip">
-							Approximate number of skipped workouts since January 1st, 2025
-						</span>
-					</button>
-				</p>
-				<p style="font-family:var(--font-mono);font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:600;">{skippedCount}</p>
-			</div>
 			<div>
 				<p class="section-tag">Time since last workout</p>
 				<p style="font-family:var(--font-mono);font-size:clamp(1.75rem, 5vw, 2.75rem);font-weight:600;color:{statusColor};">{elapsed}</p>
@@ -303,21 +415,38 @@
 
 			<p class="section-tag">Personal records</p>
 
-			<div class="pr-grid" bind:this={prCarouselEl} onscroll={handlePrScroll}>
-				{#each exercisePrs as pr (pr.id)}
-					<div class="pr-card" class:pr-card-featured={pr.id === latestPrId}>
-						{#if pr.id === latestPrId}
-							<span class="pr-card-badge">
-								<StarSolidIcon height="1em" />
-								Latest PR
-								<StarSolidIcon height="1em" />
-							</span>
-						{/if}
-						<p class="pr-card-name">{pr.exerciseName}</p>
-						<p class="pr-card-value">{formatWeight(pr.personalRecord)}</p>
-						<p class="pr-card-reps">× {pr.numberOfReps} reps</p>
-					</div>
-				{/each}
+			<div
+				class="pr-carousel-stage"
+				role="group"
+				aria-label="Personal records"
+				bind:this={prCarouselEl}
+				onpointerdown={handlePrPointerDown}
+				onpointermove={handlePrPointerMove}
+				onpointerup={endPrDrag}
+				onpointercancel={endPrDrag}
+				onmouseenter={pausePrAutoplay}
+				onmouseleave={schedulePrAutoplayResume}
+			>
+				<div class="pr-carousel-track">
+					{#each exercisePrs as pr, i (pr.id)}
+						<div
+							class="pr-card"
+							class:pr-card-featured={pr.id === latestPrId}
+							style={isPrCarouselViewport ? prCardStyle(i) : undefined}
+						>
+							{#if pr.id === latestPrId}
+								<span class="pr-card-badge">
+									<StarSolidIcon height="1em" />
+									Latest PR
+									<StarSolidIcon height="1em" />
+								</span>
+							{/if}
+							<p class="pr-card-name">{pr.exerciseName}</p>
+							<p class="pr-card-value">{formatWeight(pr.personalRecord)}</p>
+							<p class="pr-card-reps">× {pr.numberOfReps} reps</p>
+						</div>
+					{/each}
+				</div>
 			</div>
 
 			{#if exercisePrs.length > 1}
@@ -559,7 +688,11 @@
 		}
 	}
 
-	.pr-grid {
+	.pr-carousel-stage {
+		position: relative;
+	}
+
+	.pr-carousel-track {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 		gap: 1rem;
@@ -567,48 +700,6 @@
 
 	.pr-dots {
 		display: none;
-	}
-
-	@media (max-width: 600px) {
-		.pr-grid {
-			display: flex;
-			overflow-x: auto;
-			scroll-snap-type: x mandatory;
-			scroll-padding-inline: 1.25rem;
-			gap: 0.75rem;
-			margin: 0 -1.25rem;
-			padding: 0.25rem 1.25rem 0.75rem;
-			scrollbar-width: none;
-		}
-
-		.pr-grid::-webkit-scrollbar {
-			display: none;
-		}
-
-		.pr-card {
-			flex: 0 0 80%;
-			scroll-snap-align: center;
-		}
-
-		.pr-dots {
-			display: flex;
-			justify-content: center;
-			gap: 0.4rem;
-			margin-top: 0.9rem;
-		}
-
-		.pr-dot {
-			width: 6px;
-			height: 6px;
-			border-radius: 50%;
-			background: var(--border);
-			transition: background 0.2s ease, transform 0.2s ease;
-		}
-
-		.pr-dot-active {
-			background: var(--accent);
-			transform: scale(1.35);
-		}
 	}
 
 	.pr-card {
@@ -696,6 +787,59 @@
 		font-size: 0.8rem;
 		color: var(--text-muted);
 		margin-top: 0.25rem;
+	}
+
+	/* Below this point (rules must stay after the base .pr-card block above so
+	   the override wins the cascade) the PR grid becomes a 3D looping carousel. */
+	@media (max-width: 600px) {
+		.pr-carousel-stage {
+			height: 220px;
+			margin: 0 -1.25rem;
+			padding: 0 1.25rem;
+			perspective: 1000px;
+			perspective-origin: 50% 50%;
+			touch-action: pan-y;
+		}
+
+		.pr-carousel-track {
+			display: block;
+			position: relative;
+			width: 100%;
+			height: 100%;
+			transform-style: preserve-3d;
+		}
+
+		.pr-card {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 72%;
+			max-width: 280px;
+			margin: 0;
+			transform: translate(-50%, -50%) translate3d(var(--pr-x, 0), 0, var(--pr-z, 0))
+				rotateY(var(--pr-ry, 0deg)) scale(var(--pr-scale, 1));
+			backface-visibility: hidden;
+		}
+
+		.pr-dots {
+			display: flex;
+			justify-content: center;
+			gap: 0.4rem;
+			margin-top: 0.9rem;
+		}
+
+		.pr-dot {
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			background: var(--border);
+			transition: background 0.2s ease, transform 0.2s ease;
+		}
+
+		.pr-dot-active {
+			background: var(--accent);
+			transform: scale(1.35);
+		}
 	}
 
 	.tooltip-trigger {
