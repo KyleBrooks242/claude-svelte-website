@@ -133,6 +133,20 @@
 			new Date(pr.updatedAt).getTime() > new Date(latest.updatedAt).getTime() ? pr : latest,
 		).id;
 	});
+
+	let prCarouselEl = $state<HTMLDivElement | null>(null);
+	let activePrIndex = $state(0);
+
+	function handlePrScroll() {
+		if (!prCarouselEl || exercisePrs.length < 2) return;
+		const maxScroll = prCarouselEl.scrollWidth - prCarouselEl.clientWidth;
+		if (maxScroll <= 0) {
+			activePrIndex = 0;
+			return;
+		}
+		const progress = prCarouselEl.scrollLeft / maxScroll;
+		activePrIndex = Math.round(progress * (exercisePrs.length - 1));
+	}
 </script>
 
 <svelte:head><title>Exercise · Kyle Brooks</title></svelte:head>
@@ -289,7 +303,7 @@
 
 			<p class="section-tag">Personal records</p>
 
-			<div class="pr-grid">
+			<div class="pr-grid" bind:this={prCarouselEl} onscroll={handlePrScroll}>
 				{#each exercisePrs as pr (pr.id)}
 					<div class="pr-card" class:pr-card-featured={pr.id === latestPrId}>
 						{#if pr.id === latestPrId}
@@ -305,6 +319,14 @@
 					</div>
 				{/each}
 			</div>
+
+			{#if exercisePrs.length > 1}
+				<div class="pr-dots" role="presentation">
+					{#each exercisePrs as pr, i (pr.id)}
+						<span class="pr-dot" class:pr-dot-active={i === activePrIndex}></span>
+					{/each}
+				</div>
+			{/if}
 		{/if}
 	</div>
 </main>
@@ -541,6 +563,52 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 		gap: 1rem;
+	}
+
+	.pr-dots {
+		display: none;
+	}
+
+	@media (max-width: 600px) {
+		.pr-grid {
+			display: flex;
+			overflow-x: auto;
+			scroll-snap-type: x mandatory;
+			scroll-padding-inline: 1.25rem;
+			gap: 0.75rem;
+			margin: 0 -1.25rem;
+			padding: 0.25rem 1.25rem 0.75rem;
+			scrollbar-width: none;
+		}
+
+		.pr-grid::-webkit-scrollbar {
+			display: none;
+		}
+
+		.pr-card {
+			flex: 0 0 80%;
+			scroll-snap-align: center;
+		}
+
+		.pr-dots {
+			display: flex;
+			justify-content: center;
+			gap: 0.4rem;
+			margin-top: 0.9rem;
+		}
+
+		.pr-dot {
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			background: var(--border);
+			transition: background 0.2s ease, transform 0.2s ease;
+		}
+
+		.pr-dot-active {
+			background: var(--accent);
+			transform: scale(1.35);
+		}
 	}
 
 	.pr-card {
