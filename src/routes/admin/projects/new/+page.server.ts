@@ -1,10 +1,11 @@
 import { db } from '$lib/db';
 import { projects } from '$lib/schema';
 import { fail, redirect } from '@sveltejs/kit';
+import { revalidateCachedPages } from '$lib/cache';
 import type { Actions } from './$types';
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async ({ request, fetch, url }) => {
 		const data = await request.formData();
 		const kind = ((data.get('kind') as string) ?? 'software') as 'software' | 'woodworking';
 		const title = (data.get('title') as string)?.trim();
@@ -26,6 +27,8 @@ export const actions: Actions = {
 			.insert(projects)
 			.values({ kind, title, description, tags, github, demo, status })
 			.returning({ id: projects.id });
+
+		await revalidateCachedPages(url.origin, fetch);
 
 		redirect(303, `/admin/projects/${inserted.id}/edit`);
 	},

@@ -2,6 +2,7 @@ import { db } from '$lib/db';
 import { projectImages, projects } from '$lib/schema';
 import { and, asc, eq, max } from 'drizzle-orm';
 import { error, fail, redirect } from '@sveltejs/kit';
+import { revalidateCachedPages, revalidatePath } from '$lib/cache';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -25,7 +26,7 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions: Actions = {
-	update: async ({ request, params }) => {
+	update: async ({ request, params, fetch, url }) => {
 		const data = await request.formData();
 		const kind = ((data.get('kind') as string) ?? 'software') as 'software' | 'woodworking';
 		const title = (data.get('title') as string)?.trim();
@@ -48,14 +49,16 @@ export const actions: Actions = {
 			.set({ kind, title, description, tags, github, demo, status, updatedAt: new Date() })
 			.where(eq(projects.id, params.id));
 
+		await revalidateCachedPages(url.origin, fetch);
+
 		redirect(303, '/admin/projects');
 	},
 
-	addImage: async ({ request, params }) => {
+	addImage: async ({ request, params, fetch, url }) => {
 		const data = await request.formData();
-		const url = (data.get('url') as string)?.trim();
+		const imageUrl = (data.get('url') as string)?.trim();
 		const caption = (data.get('caption') as string)?.trim() ?? '';
-		if (!url) return fail(422, { imageError: 'URL is required' });
+		if (!imageUrl) return fail(422, { imageError: 'URL is required' });
 
 		const [{ maxPos }] = await db
 			.select({ maxPos: max(projectImages.position) })
@@ -64,13 +67,15 @@ export const actions: Actions = {
 
 		await db.insert(projectImages).values({
 			projectId: params.id,
-			url,
+			url: imageUrl,
 			caption,
 			position: (maxPos ?? -1) + 1,
 		});
+
+		await revalidatePath(url.origin, `/projects/${params.id}`, fetch);
 	},
 
-	updateCaption: async ({ request, params }) => {
+	updateCaption: async ({ request, params, fetch, url }) => {
 		const data = await request.formData();
 		const imageId = data.get('imageId') as string;
 		const caption = (data.get('caption') as string)?.trim() ?? '';
@@ -80,9 +85,11 @@ export const actions: Actions = {
 			.update(projectImages)
 			.set({ caption })
 			.where(and(eq(projectImages.id, imageId), eq(projectImages.projectId, params.id)));
+
+		await revalidatePath(url.origin, `/projects/${params.id}`, fetch);
 	},
 
-	setCover: async ({ request, params }) => {
+	setCover: async ({ request, params, fetch, url }) => {
 		const data = await request.formData();
 		const imageId = data.get('imageId') as string;
 		if (!imageId) return fail(400, { imageError: 'Missing image id' });
@@ -104,9 +111,11 @@ export const actions: Actions = {
 		}
 
 		await db.update(projectImages).set({ position: 0 }).where(eq(projectImages.id, target.id));
+
+		await revalidatePath(url.origin, `/projects/${params.id}`, fetch);
 	},
 
-	removeImage: async ({ request, params }) => {
+	removeImage: async ({ request, params, fetch, url }) => {
 		const data = await request.formData();
 		const imageId = data.get('imageId') as string;
 		if (!imageId) return fail(400, { imageError: 'Missing image id' });
@@ -114,10 +123,15 @@ export const actions: Actions = {
 		await db
 			.delete(projectImages)
 			.where(and(eq(projectImages.id, imageId), eq(projectImages.projectId, params.id)));
+
+		await revalidatePath(url.origin, `/projects/${params.id}`, fetch);
 	},
 
-	delete: async ({ params }) => {
+	delete: async ({ params, fetch, url }) => {
 		await db.delete(projects).where(eq(projects.id, params.id));
+
+		await revalidateCachedPages(url.origin, fetch);
+		await revalidatePath(url.origin, `/projects/${params.id}`, fetch);
 		redirect(303, '/admin/projects');
 	},
 };

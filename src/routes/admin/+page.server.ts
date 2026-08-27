@@ -2,7 +2,7 @@ import { db } from '$lib/db';
 import { posts } from '$lib/schema';
 import { eq } from 'drizzle-orm';
 import { fail, redirect } from '@sveltejs/kit';
-import { revalidateCachedPages } from '$lib/cache';
+import { revalidateCachedPages, revalidatePath } from '$lib/cache';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
@@ -28,38 +28,50 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	publish: async ({ request }) => {
+	publish: async ({ request, fetch, url }) => {
 		const data = await request.formData();
 		const id = data.get('id') as string;
 		if (!id) return fail(400, { message: 'Missing id' });
 
-		await db
+		const [updated] = await db
 			.update(posts)
 			.set({ status: 'published', publishedAt: new Date(), updatedAt: new Date() })
-			.where(eq(posts.id, id));
+			.where(eq(posts.id, id))
+			.returning({ slug: posts.slug });
+
+		await revalidateCachedPages(url.origin, fetch);
+		if (updated) await revalidatePath(url.origin, `/blog/${updated.slug}`, fetch);
 
 		return { success: true };
 	},
 
-	unpublish: async ({ request }) => {
+	unpublish: async ({ request, fetch, url }) => {
 		const data = await request.formData();
 		const id = data.get('id') as string;
 		if (!id) return fail(400, { message: 'Missing id' });
 
-		await db
+		const [updated] = await db
 			.update(posts)
 			.set({ status: 'draft', publishedAt: null, updatedAt: new Date() })
-			.where(eq(posts.id, id));
+			.where(eq(posts.id, id))
+			.returning({ slug: posts.slug });
+
+		await revalidateCachedPages(url.origin, fetch);
+		if (updated) await revalidatePath(url.origin, `/blog/${updated.slug}`, fetch);
 
 		return { success: true };
 	},
 
-	delete: async ({ request }) => {
+	delete: async ({ request, fetch, url }) => {
 		const data = await request.formData();
 		const id = data.get('id') as string;
 		if (!id) return fail(400, { message: 'Missing id' });
 
-		await db.delete(posts).where(eq(posts.id, id));
+		const [deleted] = await db.delete(posts).where(eq(posts.id, id)).returning({ slug: posts.slug });
+
+		await revalidateCachedPages(url.origin, fetch);
+		if (deleted) await revalidatePath(url.origin, `/blog/${deleted.slug}`, fetch);
+
 		redirect(303, '/admin');
 	},
 

@@ -2,6 +2,7 @@ import { db } from '$lib/db';
 import { posts } from '$lib/schema';
 import { eq } from 'drizzle-orm';
 import { error, fail, redirect } from '@sveltejs/kit';
+import { revalidateCachedPages, revalidatePath } from '$lib/cache';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions: Actions = {
-	update: async ({ request, params }) => {
+	update: async ({ request, params, fetch, url }) => {
 		const data = await request.formData();
 		const title = (data.get('title') as string)?.trim();
 		const slug = (data.get('slug') as string)?.trim();
@@ -35,7 +36,7 @@ export const actions: Actions = {
 
 		const tags = tagsRaw ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean) : [];
 
-		const [existing] = await db.select({ status: posts.status, publishedAt: posts.publishedAt })
+		const [existing] = await db.select({ slug: posts.slug, status: posts.status, publishedAt: posts.publishedAt })
 			.from(posts).where(eq(posts.id, params.id)).limit(1);
 
 		const publishedAt = status === 'published'
@@ -53,11 +54,19 @@ export const actions: Actions = {
 			throw e;
 		}
 
+		await revalidateCachedPages(url.origin, fetch);
+		if (existing && existing.slug !== slug) await revalidatePath(url.origin, `/blog/${existing.slug}`, fetch);
+		await revalidatePath(url.origin, `/blog/${slug}`, fetch);
+
 		redirect(303, '/admin');
 	},
 
-	delete: async ({ params }) => {
-		await db.delete(posts).where(eq(posts.id, params.id));
+	delete: async ({ params, fetch, url }) => {
+		const [deleted] = await db.delete(posts).where(eq(posts.id, params.id)).returning({ slug: posts.slug });
+
+		await revalidateCachedPages(url.origin, fetch);
+		if (deleted) await revalidatePath(url.origin, `/blog/${deleted.slug}`, fetch);
+
 		redirect(303, '/admin');
 	},
 };
