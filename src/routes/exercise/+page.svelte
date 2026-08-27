@@ -288,7 +288,6 @@
 			<hr class="divider" style="margin:3rem 0;" />
 
 			<p class="section-tag">Personal records</p>
-			<h2 style="font-size:1.25rem;margin-bottom:1.5rem;">Best lifts</h2>
 
 			<div class="pr-grid">
 				{#each exercisePrs as pr (pr.id)}
