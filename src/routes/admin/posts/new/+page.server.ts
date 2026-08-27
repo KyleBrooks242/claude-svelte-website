@@ -1,10 +1,11 @@
 import { db } from '$lib/db';
 import { posts } from '$lib/schema';
 import { fail, redirect } from '@sveltejs/kit';
+import { revalidateCachedPages } from '$lib/cache';
 import type { Actions } from './$types';
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async ({ request, fetch, url }) => {
 		const data = await request.formData();
 		const title = (data.get('title') as string)?.trim();
 		const slug = (data.get('slug') as string)?.trim();
@@ -37,6 +38,8 @@ export const actions: Actions = {
 			}
 			throw e;
 		}
+
+		await revalidateCachedPages(url.origin, fetch);
 
 		redirect(303, '/admin');
 	},
