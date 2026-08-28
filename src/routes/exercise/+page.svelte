@@ -136,8 +136,6 @@
 
 	let prCarouselEl = $state<HTMLDivElement | null>(null);
 	let activePrIndex = $state(0);
-	let isPrCarouselViewport = $state(false);
-
 	let isPrDragging = $state(false);
 	let dragDeltaX = $state(0);
 	let dragStartX = 0;
@@ -182,7 +180,6 @@
 
 	function prShouldAutoplay(): boolean {
 		return (
-			isPrCarouselViewport &&
 			typeof window !== 'undefined' &&
 			!window.matchMedia('(prefers-reduced-motion: reduce)').matches
 		);
@@ -251,18 +248,7 @@
 	}
 
 	$effect(() => {
-		if (typeof window === 'undefined') return;
-		const mq = window.matchMedia('(max-width: 600px)');
-		const update = () => {
-			isPrCarouselViewport = mq.matches;
-		};
-		update();
-		mq.addEventListener('change', update);
-		return () => mq.removeEventListener('change', update);
-	});
-
-	$effect(() => {
-		if (exercisePrs.length < 2 || !isPrCarouselViewport) {
+		if (exercisePrs.length < 2) {
 			stopPrAutoplay();
 			return;
 		}
@@ -432,7 +418,7 @@
 						<div
 							class="pr-card"
 							class:pr-card-featured={pr.id === latestPrId}
-							style={isPrCarouselViewport ? prCardStyle(i) : undefined}
+							style={prCardStyle(i)}
 						>
 							{#if pr.id === latestPrId}
 								<span class="pr-card-badge">
@@ -690,56 +676,103 @@
 
 	.pr-carousel-stage {
 		position: relative;
+		height: 220px;
+		margin: 0 -1.25rem;
+		padding: 0 1.25rem;
+		overflow: hidden;
+		perspective: 1000px;
+		perspective-origin: 50% 50%;
+		touch-action: pan-y;
 	}
 
 	.pr-carousel-track {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-		gap: 1rem;
+		display: block;
+		position: relative;
+		width: 100%;
+		height: 100%;
+		transform-style: preserve-3d;
 	}
 
 	.pr-dots {
-		display: none;
+		display: flex;
+		justify-content: center;
+		gap: 0.4rem;
+		margin-top: 0.9rem;
+	}
+
+	.pr-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--border);
+		transition: background 0.2s ease, transform 0.2s ease;
+	}
+
+	.pr-dot-active {
+		background: var(--accent);
+		transform: scale(1.35);
 	}
 
 	.pr-card {
-		position: relative;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 72%;
+		max-width: 280px;
 		overflow: hidden;
 		background: var(--card-bg);
-		border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+		border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
 		border-radius: var(--radius);
-		padding: 1.25rem;
+		padding: 1.5rem 1.25rem 1.25rem;
 		text-align: center;
+		transform: translate(-50%, -50%) translate3d(var(--pr-x, 0), 0, var(--pr-z, 0))
+			rotateY(var(--pr-ry, 0deg)) scale(var(--pr-scale, 1));
+		backface-visibility: hidden;
 		transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 	}
 
 	.pr-card::before {
 		content: '';
 		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 3px;
+		background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+	}
+
+	.pr-card::after {
+		content: '';
+		position: absolute;
 		inset: 0;
-		background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);
+		background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%);
 		pointer-events: none;
 	}
 
 
 	.pr-card-featured {
-		border-color: var(--accent);
+		border-color: var(--mark);
 		background: linear-gradient(
 			160deg,
-			color-mix(in srgb, var(--accent) 20%, var(--card-bg)),
+			color-mix(in srgb, var(--mark) 22%, var(--card-bg)),
 			var(--card-bg) 65%
 		);
-		box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent),
-			0 10px 30px color-mix(in srgb, var(--accent) 28%, transparent);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--mark) 45%, transparent),
+			0 12px 32px color-mix(in srgb, var(--mark) 30%, transparent);
 		padding-top: 2.5rem;
 	}
 
+	.pr-card-featured::before {
+		background: linear-gradient(90deg, var(--mark), color-mix(in srgb, var(--mark) 65%, var(--accent)));
+	}
+
 	.pr-card-featured:hover {
-		box-shadow: 0 0 0 1px var(--accent), 0 12px 34px color-mix(in srgb, var(--accent) 38%, transparent);
+		box-shadow: 0 0 0 1px var(--mark), 0 14px 36px color-mix(in srgb, var(--mark) 40%, transparent);
 	}
 
 	.pr-card-featured .pr-card-value {
-		font-size: 2.1rem;
+		font-size: 2.25rem;
+		color: var(--mark);
 	}
 
 	.pr-card-badge {
@@ -751,23 +784,27 @@
 		align-items: center;
 		gap: 0.25rem;
 		white-space: nowrap;
+		font-family: var(--font-mono);
 		font-size: 0.61rem;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		color: var(--accent);
-		background: color-mix(in srgb, var(--accent) 18%, var(--card-bg));
-		border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+		color: var(--mark);
+		background: color-mix(in srgb, var(--mark) 18%, var(--card-bg));
+		border: 1px solid color-mix(in srgb, var(--mark) 45%, transparent);
 		padding: 0.2rem 0.5rem;
 		border-radius: 999px;
 	}
 
 	.pr-card-name {
 		position: relative;
-		font-size: 0.85rem;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
 		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 		color: var(--text-muted);
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.6rem;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -775,72 +812,21 @@
 
 	.pr-card-value {
 		position: relative;
-		font-size: 1.9rem;
-		font-weight: 800;
+		font-family: var(--font-mono);
+		font-size: 2.05rem;
+		font-weight: 700;
 		color: var(--accent);
 		font-variant-numeric: tabular-nums;
+		letter-spacing: -0.01em;
 		line-height: 1.1;
 	}
 
 	.pr-card-reps {
 		position: relative;
-		font-size: 0.8rem;
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
 		color: var(--text-muted);
-		margin-top: 0.25rem;
-	}
-
-	/* Below this point (rules must stay after the base .pr-card block above so
-	   the override wins the cascade) the PR grid becomes a 3D looping carousel. */
-	@media (max-width: 600px) {
-		.pr-carousel-stage {
-			height: 220px;
-			margin: 0 -1.25rem;
-			padding: 0 1.25rem;
-			overflow: hidden;
-			perspective: 1000px;
-			perspective-origin: 50% 50%;
-			touch-action: pan-y;
-		}
-
-		.pr-carousel-track {
-			display: block;
-			position: relative;
-			width: 100%;
-			height: 100%;
-			transform-style: preserve-3d;
-		}
-
-		.pr-card {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			width: 72%;
-			max-width: 280px;
-			margin: 0;
-			transform: translate(-50%, -50%) translate3d(var(--pr-x, 0), 0, var(--pr-z, 0))
-				rotateY(var(--pr-ry, 0deg)) scale(var(--pr-scale, 1));
-			backface-visibility: hidden;
-		}
-
-		.pr-dots {
-			display: flex;
-			justify-content: center;
-			gap: 0.4rem;
-			margin-top: 0.9rem;
-		}
-
-		.pr-dot {
-			width: 6px;
-			height: 6px;
-			border-radius: 50%;
-			background: var(--border);
-			transition: background 0.2s ease, transform 0.2s ease;
-		}
-
-		.pr-dot-active {
-			background: var(--accent);
-			transform: scale(1.35);
-		}
+		margin-top: 0.3rem;
 	}
 
 	.tooltip-trigger {
