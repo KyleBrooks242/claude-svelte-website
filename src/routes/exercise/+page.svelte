@@ -796,6 +796,7 @@
 			height: 220px;
 			margin: 0 -1.25rem;
 			padding: 0 1.25rem;
+			overflow: hidden;
 			perspective: 1000px;
 			perspective-origin: 50% 50%;
 			touch-action: pan-y;
