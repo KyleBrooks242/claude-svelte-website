@@ -313,8 +313,29 @@ nav {
 	border: 1px solid var(--border);
 	border-radius: var(--radius);
 	padding: 1.5rem;
-	transition: border-color 0.2s;
+	transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s ease;
 }
+
+/* Lift toward the lamp. A dark drop-shadow barely reads against a canvas
+   this near-black, so elevation is sold the way it actually would happen
+   under a single overhead light instead: raised means closer to the lamp,
+   so the surface catches a little more of its warm light (background and
+   border both pick up a touch of --accent) and throws a soft glow of the
+   same color, backed by a wide, faint dark shadow for wherever the page's
+   vignette is already lighter than pure black. Shares the hover/focus-within
+   trigger the corner marks use (below), so both read as one "picked up"
+   state — and like the corner marks, this only applies to .card; the
+   non-clickable .workout-card/.pr-card intentionally don't get it. */
+.card:hover,
+.card:focus-within {
+	transform: translateY(-4px);
+	background: color-mix(in srgb, var(--card-bg), var(--accent) 6%);
+	border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+	box-shadow:
+		0 18px 30px -14px rgba(0, 0, 0, 0.65),
+		0 0 28px -6px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
 .card::after {
 	content: '';
 	position: absolute;
@@ -392,8 +413,14 @@ nav {
 }
 /* An outline button lights to a tint, not a full fill: its label stays
    --accent the whole way through, so it's legible at every frame of the
-   strike. A full fill would blink the text out on each dark dip. */
+   strike. A full fill would blink the text out on each dark dip. This needs
+   its own :hover rule — .btn:hover (above) sets color: var(--accent-ink) for
+   the solid .btn, and .btn-outline elements still carry the .btn class, so
+   without this override that near-black ink was winning here too: near-black
+   text on an 18%-opacity tint over a near-black page, reading as disabled. */
 .btn-outline::before { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.btn-outline:hover,
+.btn-outline:focus-visible { color: var(--accent); }
 
 .btn:disabled, .btn-outline:disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
 
