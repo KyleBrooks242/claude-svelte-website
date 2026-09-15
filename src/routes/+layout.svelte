@@ -1,27 +1,14 @@
 <script lang="ts">
 	import '../app.css';
 	import { page, navigating } from '$app/stores';
-	import IconSun from '~icons/teenyicons/sun-outline';
-	import IconMoon from '~icons/teenyicons/moon-outline';
 	import IconMenu from '~icons/teenyicons/menu-outline';
 	import IconClose from '~icons/teenyicons/x-outline';
 
 	let { children } = $props();
 
-	// Theme is set synchronously in app.html (before first paint) to avoid a flash;
-	// this just mirrors the already-applied value for the toggle button's icon.
-	let theme = $state<'light' | 'dark'>('light');
+	// The site is dark-only — a single committed palette in app.css, no
+	// [data-theme] split and no toggle.
 	let menuOpen = $state(false);
-
-	$effect(() => {
-		theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-	});
-
-	function toggleTheme() {
-		theme = theme === 'light' ? 'dark' : 'light';
-		document.documentElement.setAttribute('data-theme', theme);
-		localStorage.setItem('theme', theme);
-	}
 
 	function closeMenu() { menuOpen = false; }
 
@@ -65,31 +52,18 @@
 			</ul>
 		</div>
 
-		<div style="display:flex;align-items:center;gap:0.75rem;">
-			<button
-				type="button"
-				class="theme-toggle-btn"
-				aria-label="Toggle dark mode"
-				onclick={toggleTheme}
-			>
-				{#if theme === 'dark'}
-					<IconSun width={15} height={15} />
-				{:else}
-					<IconMoon width={15} height={15} />
-				{/if}
-			</button>
-			<button
-				class="nav-toggle"
-				aria-label="Toggle menu"
-				onclick={() => (menuOpen = !menuOpen)}
-			>
-				{#if menuOpen}
-					<IconClose width={17} height={17} />
-				{:else}
-					<IconMenu width={17} height={17} />
-				{/if}
-			</button>
-		</div>
+		<button
+			class="nav-toggle"
+			aria-label="Toggle menu"
+			aria-expanded={menuOpen}
+			onclick={() => (menuOpen = !menuOpen)}
+		>
+			{#if menuOpen}
+				<IconClose width={17} height={17} />
+			{:else}
+				<IconMenu width={17} height={17} />
+			{/if}
+		</button>
 	</div>
 </nav>
 

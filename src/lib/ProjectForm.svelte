@@ -43,7 +43,7 @@
 	<div class="form-group">
 		<label for="title">Title</label>
 		<input id="title" name="title" type="text" bind:value={title} required placeholder="Project title" />
-		{#if errors.title}<p style="color:#ef4444;font-size:0.8rem;">{errors.title}</p>{/if}
+		{#if errors.title}<p style="color:var(--status-bad);font-size:0.8rem;">{errors.title}</p>{/if}
 	</div>
 
 	<div class="form-group">

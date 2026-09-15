@@ -55,7 +55,7 @@
 			required
 			placeholder="Post title"
 		/>
-		{#if errors.title}<p style="color:#ef4444;font-size:0.8rem;">{errors.title}</p>{/if}
+		{#if errors.title}<p style="color:var(--status-bad);font-size:0.8rem;">{errors.title}</p>{/if}
 	</div>
 
 	<div class="form-group">
@@ -70,7 +70,7 @@
 			placeholder="url-friendly-slug"
 		/>
 		{#if slug}<p style="font-size:0.8rem;color:var(--text-muted);">/blog/{slug}</p>{/if}
-		{#if errors.slug}<p style="color:#ef4444;font-size:0.8rem;">{errors.slug}</p>{/if}
+		{#if errors.slug}<p style="color:var(--status-bad);font-size:0.8rem;">{errors.slug}</p>{/if}
 	</div>
 
 	<div class="form-group">
@@ -103,7 +103,7 @@
 					<button
 						type="button"
 						onclick={() => (viewMode = mode)}
-						style="padding:0.25rem 0.75rem;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;background:{viewMode === mode ? 'var(--accent)' : 'transparent'};color:{viewMode === mode ? '#fff' : 'var(--text-muted)'};transition:background 0.15s,color 0.15s;text-transform:capitalize;"
+						style="padding:0.25rem 0.75rem;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;background:{viewMode === mode ? 'var(--accent)' : 'transparent'};color:{viewMode === mode ? 'var(--accent-ink)' : 'var(--text-muted)'};transition:background 0.15s,color 0.15s;text-transform:capitalize;"
 					>{mode}</button>
 				{/each}
 			</div>
