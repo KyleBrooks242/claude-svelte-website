@@ -4,6 +4,8 @@
 	import IconDown from '~icons/teenyicons/down-solid';
 	import IconUp from '~icons/teenyicons/up-solid';
 	import StarSolidIcon from '~icons/teenyicons/star-solid';
+	import IconArrowLeft from '~icons/teenyicons/arrow-left-outline';
+	import IconArrowRight from '~icons/teenyicons/arrow-right-outline';
 
 	let { data }: { data: PageData } = $props();
 	const workout = $derived(data.workout);
@@ -237,13 +239,25 @@
 	function endPrDrag() {
 		if (!isPrDragging) return;
 		isPrDragging = false;
-		const n = exercisePrs.length;
 		const step = Math.round(-dragDeltaX / (dragCardWidth * PR_DRAG_STEP_FRACTION));
-		if (step !== 0) {
-			activePrIndex = (((activePrIndex + step) % n) + n) % n;
-		}
+		if (step !== 0) stepPr(step);
 		dragDeltaX = 0;
 		dragPointerId = null;
+		schedulePrAutoplayResume();
+	}
+
+	// Same step used by drag release, autoplay, and the prev/next buttons below —
+	// the swipe gesture that drives this carousel has no equivalent for a mouse,
+	// so these give non-touch input a way to move it at all.
+	function stepPr(step: number) {
+		const n = exercisePrs.length;
+		activePrIndex = (((activePrIndex + step) % n) + n) % n;
+	}
+
+	function clickPr(step: number) {
+		if (exercisePrs.length < 2) return;
+		pausePrAutoplay();
+		stepPr(step);
 		schedulePrAutoplayResume();
 	}
 
@@ -401,38 +415,59 @@
 
 			<p class="section-tag">Personal records</p>
 
-			<div
-				class="pr-carousel-stage"
-				role="group"
-				aria-label="Personal records"
-				bind:this={prCarouselEl}
-				onpointerdown={handlePrPointerDown}
-				onpointermove={handlePrPointerMove}
-				onpointerup={endPrDrag}
-				onpointercancel={endPrDrag}
-				onmouseenter={pausePrAutoplay}
-				onmouseleave={schedulePrAutoplayResume}
-			>
-				<div class="pr-carousel-track">
-					{#each exercisePrs as pr, i (pr.id)}
-						<div
-							class="pr-card"
-							class:pr-card-featured={pr.id === latestPrId}
-							style={prCardStyle(i)}
-						>
-							{#if pr.id === latestPrId}
-								<span class="pr-card-badge">
-									<StarSolidIcon height="1em" />
-									Latest PR
-									<StarSolidIcon height="1em" />
-								</span>
-							{/if}
-							<p class="pr-card-name">{pr.exerciseName}</p>
-							<p class="pr-card-value">{formatWeight(pr.personalRecord)}</p>
-							<p class="pr-card-reps">× {pr.numberOfReps} reps</p>
-						</div>
-					{/each}
+			<div class="pr-carousel-wrap">
+				<div
+					class="pr-carousel-stage"
+					role="group"
+					aria-label="Personal records"
+					bind:this={prCarouselEl}
+					onpointerdown={handlePrPointerDown}
+					onpointermove={handlePrPointerMove}
+					onpointerup={endPrDrag}
+					onpointercancel={endPrDrag}
+					onmouseenter={pausePrAutoplay}
+					onmouseleave={schedulePrAutoplayResume}
+				>
+					<div class="pr-carousel-track">
+						{#each exercisePrs as pr, i (pr.id)}
+							<div
+								class="pr-card"
+								class:pr-card-featured={pr.id === latestPrId}
+								style={prCardStyle(i)}
+							>
+								{#if pr.id === latestPrId}
+									<span class="pr-card-badge">
+										<StarSolidIcon height="1em" />
+										Latest PR
+										<StarSolidIcon height="1em" />
+									</span>
+								{/if}
+								<p class="pr-card-name">{pr.exerciseName}</p>
+								<p class="pr-card-value">{formatWeight(pr.personalRecord)}</p>
+								<p class="pr-card-reps">× {pr.numberOfReps} reps</p>
+							</div>
+						{/each}
+					</div>
 				</div>
+
+				{#if exercisePrs.length > 1}
+					<button
+						type="button"
+						class="pr-carousel-nav pr-carousel-nav-prev"
+						aria-label="Previous personal record"
+						onclick={() => clickPr(-1)}
+					>
+						<IconArrowLeft width="1.1rem" height="1.1rem" />
+					</button>
+					<button
+						type="button"
+						class="pr-carousel-nav pr-carousel-nav-next"
+						aria-label="Next personal record"
+						onclick={() => clickPr(1)}
+					>
+						<IconArrowRight width="1.1rem" height="1.1rem" />
+					</button>
+				{/if}
 			</div>
 
 			{#if exercisePrs.length > 1}
@@ -674,8 +709,19 @@
 		}
 	}
 
+	/* Wraps the stage so the prev/next buttons below have something to anchor
+	   to that isn't clipped by the stage's own overflow:hidden. */
+	.pr-carousel-wrap {
+		position: relative;
+	}
+
 	.pr-carousel-stage {
 		position: relative;
+		/* Gives the stage its own stacking context, so the .pr-card z-index
+		   range (0–100, see prCardStyle) is sandboxed to cards stacking on each
+		   other and can never paint over the nav buttons below, which are
+		   plain auto-stacked siblings painted after it in DOM order. */
+		z-index: 0;
 		height: 220px;
 		margin: 0 -1.25rem;
 		padding: 0 1.25rem;
@@ -683,6 +729,42 @@
 		perspective: 1000px;
 		perspective-origin: 50% 50%;
 		touch-action: pan-y;
+	}
+
+	/* Swipe/drag has no equivalent for a mouse, so these are the non-touch way
+	   to move the carousel. Styled from the page's own tokens rather than the
+	   image-carousel's translucent-black-on-photo treatment (.carousel-nav in
+	   projects/[id]) — there's no image here for it to sit on top of. */
+	.pr-carousel-nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 50%;
+		border: 1px solid var(--border);
+		background: var(--card-bg);
+		color: var(--text-muted);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+	}
+
+	.pr-carousel-nav:hover,
+	.pr-carousel-nav:focus-visible {
+		border-color: var(--accent);
+		color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 12%, var(--card-bg));
+	}
+
+	.pr-carousel-nav-prev {
+		left: 0.75rem;
+	}
+
+	.pr-carousel-nav-next {
+		right: 0.75rem;
 	}
 
 	.pr-carousel-track {
