@@ -279,9 +279,10 @@
 		}
 	}
 
-	/* ── Hero ── */
+	/* ── Hero ──
+	   Top clearance comes from .page alone (see app.css) — don't re-add it here. */
 	.exp-hero {
-		padding: 3rem 0 3.5rem;
+		padding: 0 0 3.5rem;
 		text-align: center;
 	}
 	.exp-hero h1 {

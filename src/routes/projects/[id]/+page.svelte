@@ -189,7 +189,7 @@
 
 	.view-toggle-btn.active {
 		background: var(--accent);
-		color: #fff;
+		color: var(--accent-ink);
 	}
 
 	.carousel {

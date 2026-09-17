@@ -17,7 +17,7 @@
 	<div class="container">
 		<p class="section-tag">Writing</p>
 		<p style="color: var(--text-muted); margin-bottom: 3rem;">
-			Thoughts on software, tools, and craft. Goal is to update fairly regularly.
+			Trying to document whatever I'm currently interested in. Hopefully it'll help the knowledge stick.
 		</p>
 
 		<ul style="list-style:none;display:flex;flex-direction:column;gap:1.5rem;">

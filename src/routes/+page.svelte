@@ -40,10 +40,10 @@
 	<div class="container">
 
 		<!-- Hero -->
-		<section style="padding: 3rem 0 4rem;">
-			<p class="section-tag">Hello!</p>
+		<section style="padding: 0 0 4rem;">
+			<p class="section-tag">Introduction</p>
 			<h1 style="font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 1rem;">
-				I'm Kyle.<br>Software Engineer and Amateur Woodworker
+				I'm Kyle-<br>Software Engineer and Amateur Woodworker
 			</h1>
 			<p style="font-size: 1.1rem; color: var(--text-muted); max-width: 520px; margin-bottom: 2rem;">
 				I build fast, reliable software by day and make slow, not so reliable improvements to my home on weekends
