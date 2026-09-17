@@ -14,9 +14,9 @@
    photostat negative is pale lines on a near-black field, not ink on white.
    Kyle's two crafts, software and woodworking, both start from a measured
    drawing; this is that drawing pulled off the machine and read under a single
-   work lamp. --accent is the lamp — a worn brass/tungsten glow, not a cold
-   arc tube, but still the thing that catches and flickers; --mark stays the
-   redline held in reserve for status and emphasis, never decoration.
+   work lamp. --accent is that lamp — a worn brass/tungsten glow; --mark
+   stays the redline held in reserve for status and emphasis, never
+   decoration.
 
    Two hue families, nothing else: a cool slate (--bg/--bg-secondary/--border/
    --card-bg, H≈214–220°) for structure, and a warm brass (--text/--accent/
@@ -99,49 +99,6 @@ body::before {
 	pointer-events: none;
 	opacity: var(--grain-opacity);
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* ── Flicker ── the site's signature interaction ──────────────────────────
-   A hovered element doesn't fade up, it *strikes* — the stutter of an old
-   fluorescent tube catching over a workbench. Rules that keep it a detail
-   rather than a hazard, all of them deliberate:
-
-   1. One-shot, never looping. It settles lit at 100% and stays there; there is
-      no perpetual strobe anywhere on this site.
-   2. It only ever animates the opacity of a *lit overlay* — one keyframe drives
-      buttons, cards and nav links, so everything catches the same way.
-   3. The dark points get shallower as it settles (0 → 0.18 → 0.38), so the
-      luminance swing narrows instead of hammering. Three dips in ~420ms, on
-      elements far below WCAG 2.3.1's large-area flash threshold.
-   4. :hover only. Keyboard :focus-visible lights instantly and stably — a
-      focus indicator that stutters is a worse focus indicator.
-   5. Every use is gated behind prefers-reduced-motion: no-preference, so the
-      calm state is what you get unless a browser actively asks for motion.
-
-   There is no flicker-specific media query in CSS; prefers-reduced-motion is
-   the accepted signal for flashing and blinking content, so that's the gate.
-
-   Per-keyframe steps() keeps the dips hard-edged — a tube snaps, it doesn't
-   crossfade — while the final segment eases up so it warms in rather than
-   sitting dim and then popping. */
-@keyframes tube-strike {
-	0%   { opacity: 0;    animation-timing-function: steps(1, end); }
-	6%   { opacity: 1;    animation-timing-function: steps(1, end); }
-	13%  { opacity: 0;    animation-timing-function: steps(1, end); }
-	26%  { opacity: 0.92; animation-timing-function: steps(1, end); }
-	34%  { opacity: 0.18; animation-timing-function: steps(1, end); }
-	52%  { opacity: 1;    animation-timing-function: steps(1, end); }
-	60%  { opacity: 0.38; animation-timing-function: ease-out; }
-	100% { opacity: 1; }
-}
-
-/* Applied to the lit overlay of anything that catches on hover. */
-@media (prefers-reduced-motion: no-preference) {
-	.card:hover::after,
-	.btn:hover::before,
-	.nav-links a:hover::after {
-		animation: tube-strike 420ms both;
-	}
 }
 
 a {
@@ -239,7 +196,7 @@ nav {
 	text-decoration: none;
 }
 
-/* The lit filament under a nav link — this is what strikes on hover. */
+/* The lit filament under a nav link — fades in on hover/active/focus. */
 .nav-links a::after {
 	content: '';
 	position: absolute;
@@ -304,9 +261,12 @@ nav {
 }
 
 /* ── Cards ──
-   The corner marks are the site's signature: they read as drafting
-   registration marks (and a woodworker's marking-gauge cross), and only
-   appear on interaction so the resting state stays quiet. */
+   The signature is the lift, not a static ornament: a resting card is quiet
+   (flat, no ring), and a clickable one visibly picks up toward the lamp on
+   interaction (see the hover/focus-within block below). Superseded the old
+   corner registration-marks treatment, which read as a UI-rendering glitch
+   next to the new hover state and didn't add anything the lift doesn't
+   already say more clearly. */
 .card {
 	position: relative;
 	background: var(--card-bg);
@@ -322,9 +282,9 @@ nav {
    so the surface catches a little more of its warm light (background and
    border both pick up a touch of --accent) and throws a soft glow of the
    same color, backed by a wide, faint dark shadow for wherever the page's
-   vignette is already lighter than pure black. Shares the hover/focus-within
-   trigger the corner marks use (below), so both read as one "picked up"
-   state — and like the corner marks, this only applies to .card; the
+   vignette is already lighter than pure black. :focus-within alongside
+   :hover so keyboard users on a card with a focusable child get the same
+   cue — like the old corner marks, this only applies to .card; the
    non-clickable .workout-card/.pr-card intentionally don't get it. */
 .card:hover,
 .card:focus-within {
@@ -334,28 +294,6 @@ nav {
 	box-shadow:
 		0 18px 30px -14px rgba(0, 0, 0, 0.65),
 		0 0 28px -6px color-mix(in srgb, var(--accent) 28%, transparent);
-}
-
-.card::after {
-	content: '';
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-	opacity: 0;
-	transition: opacity 0.2s ease;
-	background:
-		linear-gradient(var(--accent), var(--accent)) top left / 1px 9px no-repeat,
-		linear-gradient(var(--accent), var(--accent)) top left / 9px 1px no-repeat,
-		linear-gradient(var(--accent), var(--accent)) top right / 1px 9px no-repeat,
-		linear-gradient(var(--accent), var(--accent)) top right / 9px 1px no-repeat,
-		linear-gradient(var(--accent), var(--accent)) bottom left / 1px 9px no-repeat,
-		linear-gradient(var(--accent), var(--accent)) bottom left / 9px 1px no-repeat,
-		linear-gradient(var(--accent), var(--accent)) bottom right / 1px 9px no-repeat,
-		linear-gradient(var(--accent), var(--accent)) bottom right / 9px 1px no-repeat;
-}
-.card:hover::after,
-.card:focus-within::after {
-	opacity: 1;
 }
 
 /* ── Badge ── */
@@ -374,8 +312,8 @@ nav {
 
 /* ── Button ──
    The hover state is painted by a ::before overlay rather than by swapping
-   `background`, so the same tube-strike keyframe that lights the cards can
-   drive it. Label and icon sit above the overlay on z-index. */
+   `background`, so it can fade in independent of the label/icon, which sit
+   above it on z-index. */
 .btn {
 	position: relative;
 	isolation: isolate;
@@ -411,13 +349,13 @@ nav {
 	border: 1px solid var(--accent);
 	color: var(--accent);
 }
-/* An outline button lights to a tint, not a full fill: its label stays
-   --accent the whole way through, so it's legible at every frame of the
-   strike. A full fill would blink the text out on each dark dip. This needs
-   its own :hover rule — .btn:hover (above) sets color: var(--accent-ink) for
-   the solid .btn, and .btn-outline elements still carry the .btn class, so
-   without this override that near-black ink was winning here too: near-black
-   text on an 18%-opacity tint over a near-black page, reading as disabled. */
+/* An outline button lights to a tint, not a full fill, so its label stays
+   --accent rather than switching to the ink color a full accent fill would
+   need. This needs its own :hover rule — .btn:hover (above) sets
+   color: var(--accent-ink) for the solid .btn, and .btn-outline elements
+   still carry the .btn class, so without this override that near-black ink
+   was winning here too: near-black text on an 18%-opacity tint over a
+   near-black page, reading as disabled. */
 .btn-outline::before { background: color-mix(in srgb, var(--accent) 18%, transparent); }
 .btn-outline:hover,
 .btn-outline:focus-visible { color: var(--accent); }
@@ -576,8 +514,7 @@ time {
 }
 
 /* ── Keyboard focus ──
-   Explicit and instant. Never routed through the flicker: a focus indicator
-   that stutters is a worse focus indicator. */
+   Explicit and instant everywhere, independent of any hover-only styling. */
 :focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 2px;
