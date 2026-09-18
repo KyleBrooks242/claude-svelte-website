@@ -130,7 +130,7 @@ h1, h2, h3, h4 {
    inconsistent (nobody carried that pattern into them). Don't add top
    padding/margin to a page's first section — adjust this value instead. */
 .page {
-	padding: 8rem 0 3rem;
+	padding: 3rem 0 3rem;
 }
 
 /* ── Nav ── */
